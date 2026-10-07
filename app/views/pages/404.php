@@ -9,10 +9,11 @@ $links = [
 ];
 ?>
 <section class="ihero notfound">
-  <?php partial('mark', ['class' => 'ihero__mark']); ?>
+  <div class="ihero__bg" aria-hidden="true"><span></span><span></span></div>
   <div class="container ihero__inner">
-    <div class="ihero__content" data-hero-in>
-      <p class="eyebrow eyebrow--light">Error 404</p>
+    <div class="ihero__content" data-reveal>
+      <p class="notfound__code" aria-hidden="true">404</p>
+      <p class="eyebrow">Page not found</p>
       <h1 class="ihero__title">We Couldn't Find That Page</h1>
       <p class="ihero__text">The page may have moved or the link may be out of date. These links can help you find what you need, or call our team on <a class="notfound__phone" href="<?= e(tel_href($phone)) ?>"><?= e($phone) ?></a>.</p>
     </div>

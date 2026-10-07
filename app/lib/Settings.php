@@ -38,8 +38,9 @@ final class Settings
             'hero_badges' => "Non-Surgical Treatment Options\nPersonalized Care Plans\nOnline Booking",
             'about_image' => '',
             'testimonials_image' => '',
+            'injury_image' => '',
             'stats' => json_encode([]),
-            'featured_services' => 'sports-injuries-and-physical-fitness,chiropractic-care,spinal-decompression-therapy,regenerative-medicine,iv-therapy,weight-loss',
+            'featured_services' => 'sports-injuries-and-physical-fitness,car-accident-injury-treatment,chiropractic-care,spinal-decompression-therapy,regenerative-medicine,iv-therapy,weight-loss',
 
             // Integrations
             'ghl_appointment_embed' => '',

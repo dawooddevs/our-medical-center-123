@@ -10,7 +10,7 @@
       <div class="mnav__section">
         <button class="mnav__toggle" type="button" aria-expanded="false">Treatments<?= icon('chevron-down') ?></button>
         <div class="mnav__sub" hidden>
-          <a class="mnav__all" href="<?= e(url('treatments/')) ?>">View all treatments <?= icon('arrow-right') ?></a>
+          <a class="mnav__all" href="<?= e(url('treatments/')) ?>">View All Treatments <?= icon('arrow-right') ?></a>
           <?php foreach (Content::CATEGORIES as $key => $cat):
               $items = array_filter($byCat[$key] ?? [], fn($s) => (int)$s['show_in_menu'] === 1);
               if (!$items) continue; ?>
@@ -26,8 +26,6 @@
         </div>
       </div>
 
-      <a class="mnav__link" href="<?= e(url('book-appointment/')) ?>">Book Appointment<?= icon('arrow-right') ?></a>
-
 <?php if ($forms): ?>
       <div class="mnav__section">
         <button class="mnav__toggle" type="button" aria-expanded="false">Patient Forms<?= icon('chevron-down') ?></button>
@@ -39,7 +37,15 @@
       </div>
 <?php endif; ?>
 
-      <a class="mnav__link" href="<?= e(url('contact-us/')) ?>">Contact<?= icon('arrow-right') ?></a>
+      <div class="mnav__section">
+        <button class="mnav__toggle" type="button" aria-expanded="false">Contact<?= icon('chevron-down') ?></button>
+        <div class="mnav__sub" hidden>
+          <?php foreach ($contact as [$label, $href]): ?>
+          <a href="<?= e(url($href)) ?>"><?= e($label) ?></a>
+          <?php endforeach; ?>
+        </div>
+      </div>
+
     </nav>
     <div class="mnav__foot">
       <a class="btn btn--accent btn--block btn--lg" href="<?= e(url('book-appointment/')) ?>"><?= icon('calendar-check') ?>Book Appointment</a>
@@ -47,7 +53,6 @@
         <a class="btn btn--outline btn--block" href="<?= e(tel_href($phone)) ?>"><?= icon('phone') ?>Call</a>
         <a class="btn btn--outline btn--block" href="<?= e(sms_href(setting('sms_phone') ?: $phone)) ?>"><?= icon('message') ?>Text</a>
       </div>
-      <p class="mnav__phone">Call or text <a href="<?= e(tel_href($phone)) ?>"><?= e($phone) ?></a></p>
     </div>
   </div>
 </div>

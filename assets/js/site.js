@@ -23,7 +23,7 @@
   }, { passive: true });
 
   /* ---------- Desktop navigation (hover + click + keyboard) ---------- */
-  var navItems = $$('.nav__item.has-drop');
+  var navItems = $$('.nav__item.has-drop, .nav__item.has-mega');
   var closeTimer = null;
   function closeAll(except) {
     navItems.forEach(function (li) {
@@ -59,7 +59,7 @@
       if (e.key === 'ArrowDown' && document.activeElement === btn) {
         e.preventDefault();
         openItem(li);
-        var first = $('.dropdown a', li);
+        var first = $('.dropdown a, .mega a', li);
         if (first) first.focus();
       }
     });
@@ -192,6 +192,76 @@
       c.style.setProperty('--n', Math.min(i, 12));
       c.classList.add('is-entering');
     });
+  }
+
+  /* Homepage treatment explorer: 6 treatments per tab, "Show More" loads the rest (AJAX) */
+  var exTabs = $('[data-explorer-tabs]');
+  var exGrid = $('[data-explorer-grid]');
+  var exMore = $('[data-explorer-more]');
+  var exWrap = $('[data-explorer-more-wrap]');
+  if (exTabs && exGrid && exMore && window.fetch) {
+    var exApi = exTabs.getAttribute('data-api');
+    var exAll = exTabs.getAttribute('data-all');
+    var exState = { cat: 'featured', next: 6, total: 0, busy: false };
+    var exCache = {};
+    var exLoad = function (cat, offset, limit) {
+      var key = cat + ':' + offset + ':' + limit;
+      if (exCache[key]) return Promise.resolve(exCache[key]);
+      return fetch(exApi + '?category=' + encodeURIComponent(cat) + '&offset=' + offset + '&limit=' + limit, { headers: { Accept: 'application/json' } })
+        .then(function (r) { if (!r.ok) throw new Error(r.status); return r.json(); })
+        .then(function (d) { exCache[key] = d; return d; });
+    };
+    var exAppend = function (html, replace) {
+      var tmp = document.createElement('div');
+      tmp.innerHTML = html;
+      var cards = $$('.tcard', tmp);
+      if (replace) exGrid.innerHTML = '';
+      cards.forEach(function (c) { exGrid.appendChild(c); });
+      animateIn(cards);
+      return cards;
+    };
+    var exSync = function () {
+      exWrap.hidden = exState.next >= exState.total;
+      exMore.href = exState.cat === 'featured' ? exAll : exAll + '?category=' + exState.cat;
+    };
+    exMore.addEventListener('click', function (ev) {
+      ev.preventDefault();
+      if (exState.busy) return;
+      exState.busy = true;
+      exMore.classList.add('is-loading');
+      exMore.setAttribute('aria-busy', 'true');
+      exLoad(exState.cat, exState.next, 0).then(function (d) {
+        var cards = exAppend(d.html, false);
+        exState.next = d.next;
+        exState.total = d.total;
+        exSync();
+        if (cards[0]) { var a = $('a', cards[0]); if (a) a.focus({ preventScroll: true }); }
+      }).catch(function () { window.location.href = exMore.href; })
+        .then(function () { exState.busy = false; exMore.classList.remove('is-loading'); exMore.removeAttribute('aria-busy'); });
+    });
+    $$('.tab', exTabs).forEach(function (t) {
+      t.addEventListener('click', function () {
+        if (t.classList.contains('is-active') || exState.busy) return;
+        $$('.tab', exTabs).forEach(function (o) { o.classList.remove('is-active'); o.setAttribute('aria-selected', 'false'); });
+        t.classList.add('is-active');
+        t.setAttribute('aria-selected', 'true');
+        var cat = t.getAttribute('data-filter');
+        exState.busy = true;
+        exGrid.classList.add('is-loading');
+        exLoad(cat, 0, 6).then(function (d) {
+          exAppend(d.html, true);
+          exState.cat = cat;
+          exState.next = d.next;
+          exState.total = d.total;
+          exSync();
+        }).catch(function () { window.location.href = exAll + (cat === 'featured' ? '' : '?category=' + cat); })
+          .then(function () { exState.busy = false; exGrid.classList.remove('is-loading'); });
+      });
+    });
+    // Initial state comes from the server-rendered first page
+    exState.total = parseInt(exGrid.getAttribute('data-total'), 10) || 0;
+    exState.next = Math.min(6, exState.total);
+    exSync();
   }
 
   /* "Show More" for server-rendered lists (homepage team) */
