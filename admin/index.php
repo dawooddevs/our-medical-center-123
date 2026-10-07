@@ -17,7 +17,6 @@ $v = fn($f) => url('admin/assets/' . $f) . '?v=' . substr((string)@filemtime(__D
   <meta name="robots" content="noindex, nofollow">
   <title>Dashboard · <?= e(setting('site_short_name')) ?></title>
   <link rel="icon" href="<?= e(setting('favicon') ? media_url(setting('favicon')) : url('assets/img/favicon.png')) ?>">
-  <link rel="preload" href="<?= e(url('assets/fonts/plus-jakarta-sans-normal.woff2')) ?>" as="font" type="font/woff2" crossorigin>
   <link rel="stylesheet" href="<?= e($v('admin.css')) ?>">
   <script>
     (function () { try { var t = localStorage.getItem('dash-theme'); if (t === 'dark' || (!t && matchMedia('(prefers-color-scheme: dark)').matches)) document.documentElement.setAttribute('data-theme', 'dark'); } catch (e) {} })();

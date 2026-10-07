@@ -4,8 +4,8 @@
  * dashboard. Clinical copy is written conservatively: no guaranteed outcomes, no invented
  * statistics or credentials.
  *
- * IV Therapy and Weight Loss are drafts with placeholder copy: write their content
- * (see the project brief) and publish them from the dashboard or a migration.
+ * IV Therapy and Medical Weight Loss were written for this site and are published, but stay
+ * flagged "needs review" until the practice approves the clinical wording.
  */
 return [
     // ---------------- Injury & Sports Care ----------------
@@ -186,25 +186,96 @@ HTML,
         'meta_description' => 'Regenerative medicine, including PurePRP® platelet-rich plasma and prolotherapy, to support natural healing in painful joints, tendons and ligaments.',
     ],
     [
-        // DRAFT — write the content (see the project brief), then publish.
         'slug' => 'iv-therapy', 'title' => 'IV Therapy', 'menu_label' => 'IV Therapy',
-        'category' => 'wellness', 'icon' => 'droplet', 'featured' => 1, 'status' => 'draft',
-        'excerpt' => 'Placeholder: IV therapy content to be written.',
-        'hero_text' => 'Placeholder: IV therapy content to be written.',
-        'what_is' => '', 'conditions' => '', 'how_it_works' => '', 'benefits' => '', 'what_to_expect' => '', 'faqs' => [],
-        'related' => 'weight-loss,regenerative-medicine',
+        'category' => 'wellness', 'icon' => 'droplet', 'featured' => 1,
+        'excerpt' => 'Fluids, vitamins and minerals delivered through a vein by trained clinical staff, after a health screening, to support hydration, recovery and general wellness.',
+        'hero_text' => 'IV therapy delivers fluids, vitamins and minerals directly into a vein. Every visit starts with a health screening, and your provider decides whether it is right for you.',
+        'what_is' => <<<'HTML'
+<p>IV (intravenous) therapy delivers fluids, vitamins and minerals directly into your bloodstream through a small, flexible catheter placed in a vein, usually in the arm. Because the fluids go straight into a vein, they do not need to pass through the digestive system first.</p>
+<p>IV therapy is given by trained clinical staff after a health screening. Your provider chooses the formulation for you, based on your health history, your goals and the results of your screening.</p>
+<h3>Who it may suit</h3>
+<p>Many patients consider IV therapy for hydration support, for recovery after exercise or a recent illness, or as part of their general wellness routine. Whether it is appropriate for you is decided by your provider after your screening.</p>
+<p>IV therapy is a wellness service. It is not a substitute for medical treatment of a disease, and it does not replace the care you receive from your primary care provider or specialists.</p>
+HTML,
+        'conditions' => "Hydration support\nRecovery after exercise or physical activity\nRecovery after a recent illness, when your provider confirms it is appropriate\nGeneral wellness support",
+        'how_it_works' => <<<'HTML'
+<h3>1. Health screening</h3>
+<p>Before any IV therapy, our clinical team reviews your health history and current medications and checks your vital signs, such as blood pressure and heart rate. Your provider uses this information to decide whether IV therapy is appropriate for you and, if it is, which formulation to use. If it is not a good fit, we will tell you and talk about other options.</p>
+<h3>2. Starting the IV</h3>
+<p>A trained member of our clinical staff cleans the skin and places a small, flexible catheter in a vein, usually in your arm. You may feel a quick pinch as the needle goes in. The needle is then removed, and only the soft catheter stays in the vein.</p>
+<h3>3. During the infusion</h3>
+<p>The fluids drip slowly from the IV bag through the catheter. Our staff check on you during the session and can slow or stop the infusion if you feel unwell.</p>
+<h3>4. Finishing up</h3>
+<p>When the infusion is complete, the catheter is removed and a small bandage is placed over the site.</p>
+HTML,
+        'benefits' => "Designed to support hydration\nMay help you feel refreshed after exercise or illness\nFluids and nutrients go directly into a vein\nA formulation chosen by your provider\nA health screening before treatment\nGiven by trained clinical staff",
+        'what_to_expect' => <<<'HTML'
+<p>A session typically takes about 30 to 60 minutes once the IV is in place, depending on the formulation. Allow extra time for your first visit, which includes the health screening. Our team will let you know if there is anything you should do to prepare.</p>
+<p>You sit in a comfortable chair while the fluids run. Many patients read, use their phone or simply rest.</p>
+<h3>Afterwards</h3>
+<p>Many people return to their usual activities the same day. You may need to use the bathroom more often for a few hours. Some people have mild bruising, tenderness or soreness where the needle went in, which usually settles within a few days.</p>
+<h3>Safety</h3>
+<p>IV therapy is not right for everyone. Possible side effects include bruising or soreness at the needle site and, less commonly, irritation or swelling of the vein, lightheadedness or a reaction to an ingredient. Some people, such as those with certain heart, kidney or blood pressure conditions, or who are pregnant, may not be suitable candidates. Your provider checks for these during your screening.</p>
+<p>Tell our staff straight away if you feel pain, burning, swelling, shortness of breath or dizziness during or after your infusion. IV therapy is not a substitute for medical treatment of a disease and is not for emergencies. If you have a medical emergency, call 911.</p>
+HTML,
+        'faqs' => [
+            ['Am I a good candidate for IV therapy?', 'Your provider decides after a health screening that reviews your health history, current medications and vital signs. IV therapy is not right for everyone, including some people with certain heart, kidney or blood pressure conditions.'],
+            ['What is in the IV?', 'It depends on you. IV fluids are usually a saline-based solution, and your provider may add vitamins or minerals. Your provider chooses the formulation based on your screening and goals, and will explain what it contains before you start.'],
+            ['Does it hurt?', 'You may feel a brief pinch when the IV is placed. Most people feel little during the infusion itself. Some have mild bruising or soreness at the site afterwards.'],
+            ['How long does a session take?', 'Typically about 30 to 60 minutes once the IV is in place. Your first visit takes longer because it includes your health screening.'],
+            ['Can IV therapy treat an illness?', 'No. IV therapy is a wellness service and is not a substitute for medical treatment of a disease. If you are unwell, talk to your primary care provider. In an emergency, call 911.'],
+        ],
+        'related' => 'weight-loss,regenerative-medicine,sports-injuries-and-physical-fitness',
         'body_areas' => '',
         'meta_title' => 'IV Therapy',
+        'meta_description' => 'IV therapy delivers fluids, vitamins and minerals through a vein after a health screening, with a formulation chosen by your provider.',
     ],
     [
-        // DRAFT — write the content (see the project brief), then publish.
-        'slug' => 'weight-loss', 'title' => 'Weight Loss', 'menu_label' => 'Medical Weight Loss',
-        'category' => 'wellness', 'icon' => 'target', 'featured' => 1, 'status' => 'draft',
-        'excerpt' => 'Placeholder: weight loss content to be written.',
-        'hero_text' => 'Placeholder: weight loss content to be written.',
-        'what_is' => '', 'conditions' => '', 'how_it_works' => '', 'benefits' => '', 'what_to_expect' => '', 'faqs' => [],
-        'related' => 'iv-therapy,chiropractic-care',
+        'slug' => 'weight-loss', 'title' => 'Medical Weight Loss', 'menu_label' => 'Medical Weight Loss',
+        'category' => 'wellness', 'icon' => 'target', 'featured' => 1,
+        'excerpt' => 'A medically supervised weight loss program with an evaluation, a personalized plan and regular check-ins, including prescription medication when appropriate.',
+        'hero_text' => 'A weight loss plan built around your health and supervised by a licensed provider, with support for nutrition, activity and everyday habits.',
+        'what_is' => <<<'HTML'
+<p>Medical weight loss is a weight management program supervised by a licensed healthcare provider. Instead of a one-size-fits-all diet, your plan is based on your health history, your current health and your goals, and it is adjusted as you go.</p>
+<p>A medically supervised program typically includes:</p>
+<ul>
+<li><strong>An evaluation.</strong> A review of your health history, current medications, past weight loss efforts and goals, along with a physical assessment.</li>
+<li><strong>Lab work, if needed.</strong> Your provider may order blood tests to understand your health better before recommending a plan.</li>
+<li><strong>A personalized plan</strong> built around your needs, preferences and daily routine.</li>
+<li><strong>Regular check-ins</strong> to review your progress, answer your questions and adjust your plan.</li>
+</ul>
+HTML,
+        'conditions' => "Managing your weight with medical supervision\nBuilding healthier eating habits\nMoving more in a way that suits your body\nStaying on track with regular check-ins",
+        'how_it_works' => <<<'HTML'
+<p>Your plan is built from a few core parts. Your provider decides which ones are right for you.</p>
+<h3>Nutrition guidance</h3>
+<p>Practical guidance on what and how much you eat, built around foods you enjoy and a routine you can keep.</p>
+<h3>Activity planning</h3>
+<p>A realistic plan to move more, based on your current fitness, any injuries or pain, and your schedule.</p>
+<h3>Behavior and habit support</h3>
+<p>Help with the habits that affect weight, such as sleep, stress and eating patterns, so changes are easier to keep.</p>
+<h3>Prescription medication, when appropriate</h3>
+<p>For some patients, a licensed provider may prescribe medication as part of the plan. This can include GLP-1 medications such as semaglutide or tirzepatide. Whether medication is an option, and which one, is decided by your provider after your evaluation. Medication is used together with nutrition, activity and habit changes, not instead of them.</p>
+<p>Before you start any medication, your provider will talk with you about how it works, how it is taken, its possible side effects and the monitoring it needs. GLP-1 medications commonly cause digestive side effects such as nausea, and they are not suitable for everyone.</p>
+HTML,
+        'benefits' => "A plan based on your health, not a generic diet\nSupervised by a licensed provider\nRegular check-ins to review progress and adjust your plan\nSupport for nutrition, activity and everyday habits\nPrescription options considered when appropriate",
+        'what_to_expect' => <<<'HTML'
+<p>Your first visit is an evaluation. Your provider reviews your health history, current medications and goals, completes an assessment and may order lab work. You will talk through what has and has not worked for you before, and what you want to achieve.</p>
+<p>If the program is a good fit, your provider explains your personalized plan, including whether medication is an option for you. Follow-up visits are scheduled regularly so your provider can check your progress, help manage any side effects and adjust the plan.</p>
+<h3>Who it may suit, and who it may not</h3>
+<p>Medical weight loss may suit adults who want medical support to manage their weight, including people who have tried to lose weight on their own. It is not right for everyone. For example, some weight loss medications are not suitable during pregnancy or for people with certain medical conditions. Your provider determines whether the program, and any medication, is appropriate for you during your evaluation.</p>
+<p>Everyone's body responds differently, so progress varies from person to person. We do not promise specific results or timelines.</p>
+HTML,
+        'faqs' => [
+            ['Am I eligible for medical weight loss?', 'Eligibility is determined by a licensed provider after an evaluation of your health history, current health and goals. Lab work may be part of that evaluation.'],
+            ['Will I be prescribed medication?', 'Not necessarily. Many plans focus on nutrition, activity and habits. If your provider thinks a medication, such as a GLP-1 like semaglutide or tirzepatide, may be appropriate, they will explain the options, possible side effects and monitoring before you decide.'],
+            ['How much weight will I lose?', 'Results vary from person to person, and we do not promise a specific amount or timeline. Your provider will help you set realistic goals and review your progress at regular check-ins.'],
+            ['How often are check-ins?', 'It depends on your plan. Your provider will set a follow-up schedule with you, and check-ins may be more frequent when you start or adjust a medication.'],
+            ['Do I need to follow a strict diet?', 'No. Your nutrition guidance is built around your preferences and routine, with the aim of changes you can keep up over time.'],
+        ],
+        'related' => 'iv-therapy,sports-injuries-and-physical-fitness,chiropractic-care',
         'body_areas' => '',
         'meta_title' => 'Medical Weight Loss',
+        'meta_description' => 'Medically supervised weight loss with an evaluation, a personalized plan, regular check-ins and prescription medication when appropriate.',
     ],
 ];

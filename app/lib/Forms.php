@@ -49,7 +49,7 @@ final class Forms
                 'patient_status' => ['label' => 'New or current patient', 'type' => 'select', 'options' => ['New patient', 'Current patient'], 'required' => true, 'half' => true],
                 'concern' => ['label' => 'Main concern', 'type' => 'select', 'options' => self::concerns(), 'required' => true, 'half' => true],
                 'insurance' => ['label' => 'Insurance (carrier & plan)', 'type' => 'text', 'placeholder' => 'Optional', 'half' => true],
-                'preferred_day' => ['label' => 'Preferred day', 'type' => 'select', 'options' => ['First available', 'Monday', 'Tuesday', 'Wednesday', 'Thursday'], 'half' => true],
+                'preferred_day' => ['label' => 'Preferred day', 'type' => 'select', 'options' => ['First available', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday'], 'half' => true],
                 'preferred_time' => ['label' => 'Preferred time', 'type' => 'select', 'options' => ['Any time', 'Morning', 'Midday', 'Afternoon'], 'half' => true],
                 'message' => ['label' => 'Anything else we should know?', 'type' => 'textarea', 'placeholder' => 'Briefly, how can we help? Please don\'t include detailed medical information.'],
             ],

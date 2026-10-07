@@ -68,7 +68,7 @@ if (!$installed && ($_SERVER['REQUEST_METHOD'] ?? '') === 'POST') {
   body { background: var(--bg); }
   .wrap { max-width: 760px; margin: 40px auto; padding: 0 16px 60px; }
   .hero { display: flex; align-items: center; gap: 14px; margin-bottom: 22px; }
-  .hero span { width: 48px; height: 48px; border-radius: 14px; display: grid; place-items: center; background: linear-gradient(135deg, #37a9e7, #ff6b5b); color: #fff; font-size: 22px; }
+  .hero span { width: 48px; height: 48px; border-radius: 14px; display: grid; place-items: center; background: linear-gradient(135deg, #37a9e7, #07334c); color: #fff; font-size: 22px; }
   .req { list-style: none; padding: 0; margin: 0; display: grid; gap: 6px; font-size: .9rem; }
   .req li { display: flex; justify-content: space-between; gap: 10px; padding: 8px 12px; border-radius: 10px; background: var(--panel-2); }
   .ok { color: var(--green); font-weight: 700; } .bad { color: var(--red); font-weight: 700; }

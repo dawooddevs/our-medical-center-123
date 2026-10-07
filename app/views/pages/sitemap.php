@@ -12,10 +12,12 @@ $pages = DB::all("SELECT slug, title FROM pages WHERE status = 'published' AND s
         <li><a href="<?= e(url('')) ?>">Home</a></li>
         <?php foreach ($pages as $p): ?><li><a href="<?= e(url($p['slug'] . '/')) ?>"><?= e($p['title']) ?></a></li><?php endforeach; ?>
       </ul>
+      <?php if ($providers = Content::providers()): ?>
       <h2 class="h4">Providers</h2>
       <ul class="sitemap-list">
-        <?php foreach (Content::providers() as $p): ?><li><a href="<?= e(Content::providerUrl($p)) ?>"><?= e($p['name']) ?></a></li><?php endforeach; ?>
+        <?php foreach ($providers as $p): ?><li><a href="<?= e(Content::providerUrl($p)) ?>"><?= e($p['name']) ?></a></li><?php endforeach; ?>
       </ul>
+      <?php endif; ?>
     </div>
     <?php foreach (Content::servicesByCategory() as $cat => $items): if (!$items) continue; ?>
     <div>

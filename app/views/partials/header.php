@@ -7,29 +7,29 @@ $forms = Content::patientForms();
 $formUrl = fn($f) => $f['url'];
 $cur = fn($p) => rtrim($path ?? '', '/') === rtrim($p, '/') ? ' aria-current="page"' : '';
 $contact = [
-    ['Contact Us', 'contact-us/', 'Call, text or book online', 'message-square'],
     ['Book an Appointment', 'book-appointment/', 'Pick a date and time online', 'calendar-check'],
+    ['Contact Us', 'contact-us/', 'Call, text or send a message', 'message-square'],
 ];
 ?>
-<?php if ($locs): ?>
-<div class="utility">
-  <div class="container utility__inner">
-    <ul class="utility__locs">
-      <?php foreach ($locs as $l): ?>
-      <li><a href="<?= e(Content::mapsDirections($l)) ?>" target="_blank" rel="noopener"><?= icon('map-pin') ?><strong><?= e($l['name']) ?>:</strong> <?= e(Content::fullAddress($l)) ?></a></li>
-      <?php endforeach; ?>
-    </ul>
-    <div class="utility__right">
-      <a href="<?= e(tel_href($phone)) ?>"><?= icon('phone') ?>Call: <?= e($phone) ?></a>
+<header class="site-header<?= $locs ? ' has-utility' : '' ?>" data-header>
+  <?php if ($locs): ?>
+  <div class="utility">
+    <div class="container utility__inner">
+      <ul class="utility__locs">
+        <?php foreach ($locs as $l): ?>
+        <li><a href="<?= e(Content::mapsDirections($l)) ?>" target="_blank" rel="noopener"><?= icon('map-pin') ?><strong><?= e($l['name']) ?>:</strong> <?= e(Content::fullAddress($l)) ?></a></li>
+        <?php endforeach; ?>
+      </ul>
+      <div class="utility__right">
+        <a href="<?= e(tel_href($phone)) ?>"><?= icon('phone') ?>Call: <?= e($phone) ?></a>
+      </div>
     </div>
   </div>
-</div>
-<?php endif; ?>
+  <?php endif; ?>
 
-<header class="site-header" data-header>
   <div class="container header__inner">
-    <a class="brand" href="<?= e(url('')) ?>" aria-label="<?= e(setting('site_name')) ?> — Home">
-      <?php partial('logo'); ?>
+    <a class="brand brand--swap" href="<?= e(url('')) ?>" aria-label="<?= e(setting('site_name')) ?>, home">
+      <?php partial('logo', ['both' => true]); ?>
     </a>
 
     <nav class="nav" aria-label="Main navigation" data-nav>
@@ -37,6 +37,7 @@ $contact = [
         <li class="nav__item has-drop">
           <button class="nav__link" type="button" aria-expanded="false" aria-controls="dd-treatments">Treatments<?= icon('chevron-down', 'icon nav__chev') ?></button>
           <div class="dropdown" id="dd-treatments">
+            <p class="dropdown__label">Browse by category</p>
             <ul class="dropdown__list">
               <?php foreach (Content::CATEGORIES as $key => $c): $items = $menuServices($key); if (!$items) continue; ?>
               <li class="dropdown__item has-sub">
@@ -46,7 +47,7 @@ $contact = [
                   <ul>
                     <?php foreach ($items as $sv):
                         $label = preg_replace('/\s*—\s*Coming Soon$/i', '', $sv['menu_label'] ?: $sv['title']); ?>
-                    <li><a href="<?= e(Content::serviceUrl($sv)) ?>"<?= $cur('/treatments/' . $sv['slug'] . '/') ?>><?= e($label) ?><?php if ((int)$sv['coming_soon']): ?> <span class="tag tag--soon">Coming soon</span><?php endif; ?></a></li>
+                    <li><a href="<?= e(Content::serviceUrl($sv)) ?>"<?= $cur('/treatments/' . $sv['slug'] . '/') ?>><span class="dropdown__sub-icon"><?= icon(Content::serviceIcon($sv)) ?></span><?= e($label) ?><?php if ((int)$sv['coming_soon']): ?> <span class="tag tag--soon">Coming soon</span><?php endif; ?></a></li>
                     <?php endforeach; ?>
                   </ul>
                 </div>
@@ -70,26 +71,16 @@ $contact = [
           </div>
         </li>
 <?php endif; ?>
-
-        <li class="nav__item has-drop">
-          <button class="nav__link" type="button" aria-expanded="false" aria-controls="dd-contact">Contact<?= icon('chevron-down', 'icon nav__chev') ?></button>
-          <div class="dropdown dropdown--right" id="dd-contact">
-            <ul class="dropdown__list">
-              <?php foreach ($contact as [$label, $href, $desc, $ic]): ?>
-              <li><a class="dropdown__link" href="<?= e(url($href)) ?>"<?= $cur('/' . $href) ?>><span class="dropdown__icon"><?= icon($ic) ?></span><span><strong><?= e($label) ?></strong><small><?= e($desc) ?></small></span></a></li>
-              <?php endforeach; ?>
-            </ul>
-          </div>
-        </li>
+        <li class="nav__item"><a class="nav__link" href="<?= e(url('contact-us/')) ?>"<?= $cur('/contact-us/') ?>>Contact</a></li>
       </ul>
     </nav>
 
     <div class="header__actions">
-      <a class="header__phone" href="<?= e(tel_href($phone)) ?>">
+      <a class="header__phone" href="<?= e(tel_href($phone)) ?>" aria-label="Call or text <?= e($phone) ?>">
         <span class="header__phone-icon"><?= icon('phone') ?></span>
-        <span class="header__phone-text"><small>Call / Text</small><strong><?= e($phone) ?></strong></span>
+        <span class="header__phone-text"><small>Call or text</small><strong><?= e($phone) ?></strong></span>
       </a>
-      <a class="btn btn--accent header__cta" href="<?= e(url('book-appointment/')) ?>">Book Appointment</a>
+      <a class="btn btn--accent header__cta" href="<?= e(url('book-appointment/')) ?>">Book Appointment<?= icon('arrow-right') ?></a>
       <button class="menu-toggle" type="button" aria-controls="mobile-nav" aria-expanded="false" data-menu-open>
         <?= icon('menu') ?><span class="sr-only">Open menu</span>
       </button>

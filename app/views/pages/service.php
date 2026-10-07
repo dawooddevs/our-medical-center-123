@@ -38,7 +38,7 @@ partial('inner-hero', [
     'title' => $title,
     'eyebrow' => $cat['label'],
     'text' => $s['hero_text'] ?: $s['excerpt'],
-    'crumbs' => [['Pain Treatments', 'treatments/'], [$title, 'treatments/' . $s['slug'] . '/']],
+    'crumbs' => [['Treatments', 'treatments/'], [$title, 'treatments/' . $s['slug'] . '/']],
     'image' => $s['image'],
     'withArt' => true,
     'artIcon' => Content::serviceIcon($s),
@@ -112,7 +112,8 @@ partial('inner-hero', [
       <div class="sidecard sidecard--primary">
         <p class="eyebrow eyebrow--light">Get started</p>
         <h2 class="sidecard__title">Find Out if <?= e($title) ?> Is Right for You</h2>
-        <a class="btn btn--accent btn--block" href="<?= e(url('book-appointment/')) ?>">Book Appointment</a>
+        <p class="sidecard__text">Your provider will confirm whether this treatment suits you after an evaluation.</p>
+        <a class="btn btn--accent btn--block" href="<?= e(url('book-appointment/')) ?>">Book an Appointment<?= icon('arrow-right') ?></a>
         <a class="btn btn--glass btn--block" href="<?= e(tel_href($phone)) ?>"><?= icon('phone') ?><?= e($phone) ?></a>
         <a class="sidecard__link" href="<?= e(url('contact-us/')) ?>"><?= icon('message-square') ?>Questions? Contact us</a>
       </div>
@@ -156,13 +157,13 @@ partial('inner-hero', [
   <div class="container">
     <div class="section-head" data-reveal>
       <div><p class="eyebrow">Related treatments</p><h2 class="h3">You May Also Want to Explore</h2></div>
-      <a class="btn btn--outline" href="<?= e(url('treatments/')) ?>">All Treatments <?= icon('arrow-right') ?></a>
+      <a class="btn btn--outline" href="<?= e(url('treatments/')) ?>">All Treatments<?= icon('arrow-right') ?></a>
     </div>
-    <div class="tgrid tgrid--4">
+    <div class="tgrid<?= count($related) >= 4 ? ' tgrid--4' : '' ?>">
       <?php foreach ($related as $r): ?><div data-reveal><?php partial('service-card', ['s' => $r]); ?></div><?php endforeach; ?>
     </div>
   </div>
 </section>
 <?php endif; ?>
 
-<?php partial('cta', ['headline' => 'Find Out if This Treatment Is Right for You', 'button' => 'Request Appointment']); ?>
+<?php partial('cta', ['headline' => 'Find Out if This Treatment Is Right for You']); ?>

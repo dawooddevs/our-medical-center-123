@@ -1,6 +1,7 @@
 <?php
 // Stroke icon paths (24x24). Entries prefixed with FILL: are rendered filled.
 return [
+    'home' => '<path d="m3 9 9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><path d="M9 22V12h6v10"/>',
     'circle' => '<circle cx="12" cy="12" r="9"/>',
     'play' => '<polygon points="6 3 20 12 6 21 6 3"/>',
     'video' => '<path d="m16 13 5.2 3.5a.5.5 0 0 0 .8-.4V7.9a.5.5 0 0 0-.8-.4L16 11"/><rect x="2" y="6" width="14" height="12" rx="2"/>',

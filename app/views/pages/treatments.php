@@ -11,7 +11,7 @@ $items = [];
 foreach ($services as $i => $s) {
     $items[] = ['@type' => 'ListItem', 'position' => $i + 1, 'url' => abs_url('treatments/' . $s['slug'] . '/'), 'name' => $s['title']];
 }
-Seo::addSchema(['@context' => 'https://schema.org', '@type' => 'ItemList', 'name' => 'Pain Treatments', 'itemListElement' => $items]);
+Seo::addSchema(['@context' => 'https://schema.org', '@type' => 'ItemList', 'name' => 'Treatments', 'itemListElement' => $items]);
 partial('inner-hero', [
     'title' => $page['title'],
     'eyebrow' => $page['eyebrow'],
@@ -45,7 +45,7 @@ partial('inner-hero', [
       <h2 class="h4">No treatments match your search</h2>
       <p>Try a different word, or let our team help you find the right place to start.</p>
       <div class="btn-row btn-row--center">
-        <a class="btn btn--accent" href="<?= e(url('book-appointment/')) ?>">Book Appointment</a>
+        <a class="btn btn--accent" href="<?= e(url('book-appointment/')) ?>">Book an Appointment<?= icon('arrow-right') ?></a>
         <a class="btn btn--outline" href="<?= e(tel_href(setting('phone'))) ?>"><?= icon('phone') ?>Call <?= e(setting('phone')) ?></a>
       </div>
     </div>

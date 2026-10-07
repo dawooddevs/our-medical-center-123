@@ -1147,7 +1147,7 @@
 
   /* Match uploaded images to treatments/pages/settings by file name */
   function autoAssign() {
-    var body = el('<div><div class="notice notice--blue">' + ic('info') + '<span>Images are matched by file name: <b>regenerative-medicine.jpg</b> → Regenerative Medicine, <b>page-contact-us.jpg</b> → Contact page, <b>location-main.jpg</b>, <b>provider-dr-jane-smith.jpg</b>, <b>home-hero.jpg</b>, <b>home-integrated-care.jpg</b>, <b>social-share.jpg</b>, <b>logo.png</b>. Treatment titles also work as file names.</span></div>' +
+    var body = el('<div><div class="notice notice--blue">' + ic('info') + '<span>Images are matched by file name: <b>regenerative-medicine.jpg</b> → Regenerative Medicine, <b>page-contact-us.jpg</b> → Contact page, <b>location-main.jpg</b>, <b>provider-dr-jane-smith.jpg</b>, <b>home-hero.jpg</b>, <b>home-about.jpg</b>, <b>social-share.jpg</b>, <b>logo.png</b>. Treatment titles also work as file names.</span></div>' +
       '<label class="toggle" style="margin-bottom:14px"><span>Replace images that are already set</span><input type="checkbox" data-ow><span class="toggle__ui"></span></label><div data-res><div class="skel"></div></div></div>');
     var res = $('[data-res]', body), ow = $('[data-ow]', body);
     function render(d) {

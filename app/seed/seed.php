@@ -3,8 +3,8 @@
  * Seeds the database on a fresh install: treatments, core pages, redirects and the
  * GoHighLevel booking form and chat widget. Safe to run once.
  *
- * Providers, locations, testimonials and homepage FAQs start empty. Add them in the
- * dashboard only from information the practice supplies; never invent them.
+ * Providers, locations and testimonials start empty, and homepage FAQs start as unpublished
+ * drafts. Add or publish them in the dashboard only from information the practice supplies.
  */
 function seed_database(): void
 {
@@ -50,6 +50,18 @@ function seed_database(): void
             'eyebrow' => '', 'intro' => '', 'image' => '', 'content' => '', 'template' => 'default', 'show_cta' => 1, 'is_system' => 0,
             'needs_review' => 0, 'status' => 'published', 'meta_title' => '', 'meta_description' => '',
         ], $p, ['sort_order' => ($i + 1) * 10, 'created_at' => $now, 'updated_at' => $now]));
+    }
+
+    // ---------- Homepage FAQs: general drafts only (no practice-specific claims) ----------
+    // They stay hidden until the practice reviews and publishes them in Dashboard → FAQs.
+    foreach ([
+        ['How do I book an appointment?', 'Book online at a time that suits you, or call or text (843) 874-8185 and our team will help you schedule.'],
+        ['Do I need a referral?', 'It depends on your situation and the treatment. Call our team on (843) 874-8185 to check what applies to you.'],
+        ['What should I bring to my first visit?', 'Bring a photo ID, a list of your current medications, and any recent records, imaging or test results related to your concern.'],
+        ['What happens at my first visit?', 'We review your health history and talk about your symptoms and goals. Your provider then evaluates you and explains the options that may be right for you.'],
+        ['Is every treatment right for everyone?', 'No. Eligibility for any treatment is determined after an evaluation by a provider. If a treatment is not a good fit, we will tell you and talk about other options.'],
+    ] as $i => [$q, $a]) {
+        DB::insert('faqs', ['question' => $q, 'answer' => $a, 'grp' => 'home', 'sort_order' => ($i + 1) * 10, 'status' => 'draft', 'created_at' => $now, 'updated_at' => $now]);
     }
 
     // ---------- Redirects for common URL variations ----------

@@ -23,7 +23,7 @@
   }, { passive: true });
 
   /* ---------- Desktop navigation (hover + click + keyboard) ---------- */
-  var navItems = $$('.nav__item.has-drop, .nav__item.has-mega');
+  var navItems = $$('.nav__item.has-drop');
   var closeTimer = null;
   function closeAll(except) {
     navItems.forEach(function (li) {
@@ -59,7 +59,7 @@
       if (e.key === 'ArrowDown' && document.activeElement === btn) {
         e.preventDefault();
         openItem(li);
-        var first = $('.dropdown a, .mega a', li);
+        var first = $('.dropdown a', li);
         if (first) first.focus();
       }
     });
@@ -194,76 +194,6 @@
     });
   }
 
-  /* Homepage treatment explorer: 3 treatments per tab, "Show More" loads the rest (AJAX) */
-  var exTabs = $('[data-explorer-tabs]');
-  var exGrid = $('[data-explorer-grid]');
-  var exMore = $('[data-explorer-more]');
-  var exWrap = $('[data-explorer-more-wrap]');
-  if (exTabs && exGrid && exMore && window.fetch) {
-    var exApi = exTabs.getAttribute('data-api');
-    var exAll = exTabs.getAttribute('data-all');
-    var exState = { cat: 'featured', next: 3, total: 0, busy: false };
-    var exCache = {};
-    var exLoad = function (cat, offset, limit) {
-      var key = cat + ':' + offset + ':' + limit;
-      if (exCache[key]) return Promise.resolve(exCache[key]);
-      return fetch(exApi + '?category=' + encodeURIComponent(cat) + '&offset=' + offset + '&limit=' + limit, { headers: { Accept: 'application/json' } })
-        .then(function (r) { if (!r.ok) throw new Error(r.status); return r.json(); })
-        .then(function (d) { exCache[key] = d; return d; });
-    };
-    var exAppend = function (html, replace) {
-      var tmp = document.createElement('div');
-      tmp.innerHTML = html;
-      var cards = $$('.tcard', tmp);
-      if (replace) exGrid.innerHTML = '';
-      cards.forEach(function (c) { exGrid.appendChild(c); });
-      animateIn(cards);
-      return cards;
-    };
-    var exSync = function () {
-      exWrap.hidden = exState.next >= exState.total;
-      exMore.href = exState.cat === 'featured' ? exAll : exAll + '?category=' + exState.cat;
-    };
-    exMore.addEventListener('click', function (ev) {
-      ev.preventDefault();
-      if (exState.busy) return;
-      exState.busy = true;
-      exMore.classList.add('is-loading');
-      exMore.setAttribute('aria-busy', 'true');
-      exLoad(exState.cat, exState.next, 0).then(function (d) {
-        var cards = exAppend(d.html, false);
-        exState.next = d.next;
-        exState.total = d.total;
-        exSync();
-        if (cards[0]) { var a = $('a', cards[0]); if (a) a.focus({ preventScroll: true }); }
-      }).catch(function () { window.location.href = exMore.href; })
-        .then(function () { exState.busy = false; exMore.classList.remove('is-loading'); exMore.removeAttribute('aria-busy'); });
-    });
-    $$('.tab', exTabs).forEach(function (t) {
-      t.addEventListener('click', function () {
-        if (t.classList.contains('is-active') || exState.busy) return;
-        $$('.tab', exTabs).forEach(function (o) { o.classList.remove('is-active'); o.setAttribute('aria-selected', 'false'); });
-        t.classList.add('is-active');
-        t.setAttribute('aria-selected', 'true');
-        var cat = t.getAttribute('data-filter');
-        exState.busy = true;
-        exGrid.classList.add('is-loading');
-        exLoad(cat, 0, 3).then(function (d) {
-          exAppend(d.html, true);
-          exState.cat = cat;
-          exState.next = d.next;
-          exState.total = d.total;
-          exSync();
-        }).catch(function () { window.location.href = exAll + (cat === 'featured' ? '' : '?category=' + cat); })
-          .then(function () { exState.busy = false; exGrid.classList.remove('is-loading'); });
-      });
-    });
-    // Initial state comes from the server-rendered first page
-    exState.total = parseInt(exGrid.getAttribute('data-total'), 10) || 0;
-    exState.next = Math.min(3, exState.total);
-    exSync();
-  }
-
   /* "Show More" for server-rendered lists (homepage team) */
   $$('[data-more-btn]').forEach(function (btn) {
     var wrap = btn.closest('[data-more-wrap]');
@@ -347,33 +277,6 @@
     pSearch.addEventListener('input', pApply);
   }
 
-  /* ---------- Where does it hurt? ---------- */
-  var bm = $('[data-bodymap]');
-  if (bm) {
-    var data = {};
-    try { data = JSON.parse($('[data-bodymap-data]', bm).textContent); } catch (e) {}
-    var list = $('[data-bodymap-list]', bm);
-    var label = $('[data-bodymap-label]', bm);
-    var arrow = '<svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12h14"/><path d="m12 5 7 7-7 7"/></svg>';
-    var esc = function (s) { var d = document.createElement('div'); d.textContent = s; return d.innerHTML; };
-    function pick(area) {
-      $$('[data-area]', bm).forEach(function (el) {
-        var on = el.getAttribute('data-area') === area;
-        el.classList.toggle('is-active', on);
-        if (el.tagName === 'BUTTON') el.setAttribute('aria-pressed', on ? 'true' : 'false');
-      });
-      var chip = $('.chip[data-area="' + area + '"]', bm);
-      label.textContent = chip ? chip.textContent : area;
-      var items = data[area] || [];
-      list.innerHTML = items.length ? items.map(function (s, i) {
-        return '<li style="--n:' + i + '"><a href="' + esc(s.url) + '"><span><strong>' + esc(s.title) + '</strong><small>' + esc(s.category) + '</small></span>' + arrow + '</a></li>';
-      }).join('') : '<li><a href="' + (document.querySelector('.bodymap__note a') || {}).href + '"><span><strong>Request an evaluation</strong><small>Our team will help find the right place to start</small></span>' + arrow + '</a></li>';
-    }
-    $$('[data-area]', bm).forEach(function (el) {
-      el.addEventListener('click', function () { pick(el.getAttribute('data-area')); });
-    });
-  }
-
   /* ---------- Testimonials slider ---------- */
   // Videos: size each frame to the clip's real shape and play one at a time
   $$('[data-video-frame] video').forEach(function (v) {
@@ -384,12 +287,19 @@
     });
   });
 
-  // GoHighLevel embeds: drop the loading placeholder once the widget has loaded
-  $$('.form-embed iframe').forEach(function (f) {
-    var done = function () { f.closest('.form-embed').classList.add('is-loaded'); };
-    f.addEventListener('load', done);
-    setTimeout(done, 8000);
+  // GoHighLevel embeds: drop the loading placeholder once the widget has loaded. A fast iframe
+  // can finish before this deferred script runs, so the window load event (which waits for
+  // iframes) is the backstop.
+  var embeds = $$('.form-embed iframe');
+  var embedDone = function (f) { f.closest('.form-embed').classList.add('is-loaded'); };
+  embeds.forEach(function (f) {
+    f.addEventListener('load', function () { embedDone(f); });
+    setTimeout(function () { embedDone(f); }, 8000);
   });
+  if (embeds.length) {
+    if (document.readyState === 'complete') embeds.forEach(embedDone);
+    else window.addEventListener('load', function () { embeds.forEach(embedDone); });
+  }
 
   // Office hours table: highlight today's row (visitor's local day; the page may be cached)
   var isoToday = ((new Date().getDay() + 6) % 7) + 1;

@@ -40,7 +40,7 @@ $sections = array_filter([
 ], fn($v) => trim(strip_tags((string)$v)) !== '');
 ?>
 <section class="phero">
-  <div class="ihero__bg" aria-hidden="true"><span></span><span></span></div>
+  <?php partial('mark', ['class' => 'ihero__mark']); ?>
   <div class="container phero__inner">
     <div class="phero__photo" data-reveal="mask">
       <?php if ($p['photo']): ?>
@@ -56,7 +56,7 @@ $sections = array_filter([
           <li><?= icon('chevron-right') ?><span aria-current="page"><?= e($p['name']) ?></span></li>
         </ol>
       </nav>
-      <p class="eyebrow"><?= e($typeLabel) ?></p>
+      <p class="eyebrow eyebrow--light"><?= e($typeLabel) ?></p>
       <h1 class="ihero__title"><?= e($p['name']) ?><?= $p['credentials'] ? '<span class="phero__cred">, ' . e($p['credentials']) . '</span>' : '' ?></h1>
       <p class="phero__role"><?= e($p['title']) ?></p>
       <?php if ($p['short_bio']): ?><p class="ihero__text"><?= e($p['short_bio']) ?></p><?php endif; ?>
@@ -66,8 +66,8 @@ $sections = array_filter([
       </ul>
       <?php endif; ?>
       <div class="btn-row">
-        <a class="btn btn--accent btn--lg" href="<?= e(url('book-appointment/')) ?>">Request Appointment <?= icon('arrow-right') ?></a>
-        <a class="btn btn--ghost btn--lg" href="<?= e(tel_href($phone)) ?>"><?= icon('phone') ?>Call Us</a>
+        <a class="btn btn--accent btn--lg" href="<?= e(url('book-appointment/')) ?>">Book an Appointment<?= icon('arrow-right') ?></a>
+        <a class="btn btn--glass btn--lg" href="<?= e(tel_href($phone)) ?>"><?= icon('phone') ?>Call <?= e($phone) ?></a>
       </div>
     </div>
   </div>

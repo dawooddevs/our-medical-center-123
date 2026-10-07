@@ -5,7 +5,7 @@
  *
  *   php app/cli/migrate.php            run pending migrations
  *   php app/cli/migrate.php --list     show status
- *   php app/cli/migrate.php --rerun=ID run one migration again (e.g. 2026_10_03_001_wp_content_import)
+ *   php app/cli/migrate.php --rerun=ID run one migration again (e.g. 2026_10_10_001_publish_new_pages)
  *
  * A migration returns an array of log lines when finished, or false to be retried on the
  * next run (for example when a download failed). After 3 unfinished attempts it is skipped.

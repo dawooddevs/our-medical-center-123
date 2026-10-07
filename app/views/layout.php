@@ -5,6 +5,8 @@ $accent = $hex(setting('color_accent'), '#37a9e7');
 $highlight = $hex(setting('color_highlight'), '#37a9e7');
 $favicon = setting('favicon');
 $gaId = preg_replace('/[^A-Za-z0-9\-]/', '', (string)setting('ga_id'));
+// The chat bubble sits bottom-right; with it, the mobile action bar leaves room for it (see .has-chat in site.css)
+$hasChat = trim((string)setting('chat_widget')) !== '';
 ?><!doctype html>
 <html lang="en">
 <head>
@@ -14,8 +16,8 @@ $gaId = preg_replace('/[^A-Za-z0-9\-]/', '', (string)setting('ga_id'));
   <?= Seo::head() ?>
 
   <meta name="theme-color" content="<?= e($primary) ?>">
-  <link rel="preload" href="<?= e(url('assets/fonts/plus-jakarta-sans-normal.woff2')) ?>" as="font" type="font/woff2" crossorigin>
-  <link rel="preload" href="<?= e(url('assets/fonts/instrument-serif-italic.woff2')) ?>" as="font" type="font/woff2" crossorigin>
+  <link rel="preload" href="<?= e(url('assets/fonts/montserrat-normal.woff2')) ?>" as="font" type="font/woff2" crossorigin>
+  <link rel="preload" href="<?= e(url('assets/fonts/inter-normal.woff2')) ?>" as="font" type="font/woff2" crossorigin>
   <link rel="stylesheet" href="<?= e(asset(is_file(ROOT . '/assets/css/site.min.css') ? 'css/site.min.css' : 'css/site.css')) ?>">
   <style>:root{--primary:<?= $primary ?>;--accent:<?= $accent ?>;--highlight:<?= $highlight ?>}</style>
   <?php if ($favicon): ?>
@@ -30,7 +32,7 @@ $gaId = preg_replace('/[^A-Za-z0-9\-]/', '', (string)setting('ga_id'));
   <?php endif; ?>
   <?= setting('head_scripts') /* trusted: admin-only setting */ ?>
 </head>
-<body>
+<body<?= $hasChat ? ' class="has-chat"' : '' ?>>
   <a class="skip-link" href="#main">Skip to content</a>
   <?php partial('header', ['path' => $path]); ?>
   <main id="main" tabindex="-1">
@@ -41,7 +43,7 @@ $gaId = preg_replace('/[^A-Za-z0-9\-]/', '', (string)setting('ga_id'));
   <?php if (setting('cookie_notice') === '1'): ?>
   <div class="cookie" data-cookie hidden>
     <p>We use essential cookies and basic analytics to improve this website. See our <a href="<?= e(url('privacy-policy/')) ?>">Privacy Policy</a>.</p>
-    <button class="btn btn--sm btn--dark" type="button" data-cookie-ok>Got it</button>
+    <button class="btn btn--sm btn--primary" type="button" data-cookie-ok>Got it</button>
   </div>
   <?php endif; ?>
   <script src="<?= e(asset(is_file(ROOT . '/assets/js/site.min.js') ? 'js/site.min.js' : 'js/site.js')) ?>" defer></script>

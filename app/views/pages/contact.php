@@ -23,9 +23,12 @@ partial('inner-hero', [
     <div class="contact-cards">
       <a class="ccard" href="<?= e(tel_href($phone)) ?>" data-reveal><span class="ccard__icon"><?= icon('phone') ?></span><small>Call us</small><strong><?= e($phone) ?></strong></a>
       <a class="ccard" href="<?= e(sms_href($sms)) ?>" data-reveal style="--d:1"><span class="ccard__icon"><?= icon('message') ?></span><small>Text us</small><strong><?= e($sms) ?></strong></a>
-      <div class="ccard" data-reveal style="--d:2"><span class="ccard__icon"><?= icon('printer') ?></span><small>Fax</small>
-        <strong class="ccard__multi"><?php foreach ($locs as $l): if (!$l['fax']) continue; ?><span><?= e($l['name']) ?> <?= e($l['fax']) ?></span><?php endforeach; ?></strong>
+      <a class="ccard" href="<?= e(url('book-appointment/')) ?>" data-reveal style="--d:2"><span class="ccard__icon"><?= icon('calendar-check') ?></span><small>Book online</small><strong>Choose a time</strong></a>
+      <?php if ($faxes = array_filter($locs, fn($l) => !empty($l['fax']))): ?>
+      <div class="ccard" data-reveal style="--d:3"><span class="ccard__icon"><?= icon('printer') ?></span><small>Fax</small>
+        <strong class="ccard__multi"><?php foreach ($faxes as $l): ?><span><?= e($l['name']) ?> <?= e($l['fax']) ?></span><?php endforeach; ?></strong>
       </div>
+      <?php endif; ?>
       <?php if (setting('email')): ?>
       <a class="ccard" href="mailto:<?= e(setting('email')) ?>" data-reveal style="--d:3"><span class="ccard__icon"><?= icon('mail') ?></span><small>Email</small><strong><?= e(setting('email')) ?></strong></a>
       <?php endif; ?>
@@ -33,11 +36,11 @@ partial('inner-hero', [
   </div>
 </section>
 <section class="section section--tight" id="form">
-  <div class="container appt">
+  <div class="container appt<?= ($locs || $social) ? '' : ' appt--solo' ?>">
     <div class="card card--form" data-reveal>
       <div class="card__head">
         <span class="card__icon"><?= icon('message-square') ?></span>
-        <div><h2 class="h4">Send Us a Message</h2><p>We typically respond within one business day.</p></div>
+        <div><h2 class="h4">Send Us a Message</h2><p>Leave your details and our team will get back to you.</p></div>
       </div>
       <?php partial('form', ['type' => 'contact']); ?>
     </div>
@@ -63,6 +66,7 @@ partial('inner-hero', [
     </aside>
   </div>
 </section>
+<?php if ($locs): ?>
 <section class="section section--soft section--tight">
   <div class="container">
     <div class="map-grid">
@@ -75,3 +79,4 @@ partial('inner-hero', [
     </div>
   </div>
 </section>
+<?php endif; ?>
