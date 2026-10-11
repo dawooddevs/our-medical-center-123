@@ -303,8 +303,9 @@ final class Media
      */
     /**
      * Name index for matching uploads to content. Each image is indexed by its stored file name, its
-     * original upload name (not cut to 60 characters) and both without a "-2"/"-thumb" suffix, plus
-     * a hyphen-free form so "glp-1" and "glp1" match. Newest upload wins.
+     * original upload name (not cut to 60 characters) and both without a "-2"/"-thumb" suffix or a
+     * doubled extension ("photo.jpg.png"), plus a hyphen-free form so "glp-1" and "glp1" match.
+     * Newest upload wins.
      */
     public static function imageIndex(array $images): array
     {
@@ -313,6 +314,7 @@ final class Media
         foreach ($images as $m) {
             $names = [slugify(pathinfo((string)$m['path'], PATHINFO_FILENAME)), slugify(pathinfo((string)$m['original_name'], PATHINFO_FILENAME))];
             foreach ($names as $n) {
+                $n = (string)preg_replace('/-(jpe?g|png|webp|gif|avif|heic)$/', '', $n); // "photo.jpg.png"
                 if ($n === '') continue;
                 $stripped = (string)preg_replace('/-(\d+|thumb)$/', '', $n);
                 $exact[$stripped] = $m;
