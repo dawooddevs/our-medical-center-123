@@ -108,14 +108,25 @@ if (!$segments) {
         $view = 'pages/service';
         $vars['service'] = $s;
     }
+} elseif ($segments[0] === 'conditions' && count($segments) === 2) {
+    if ($c = Content::condition($segments[1])) {
+        $view = 'pages/condition';
+        $vars['condition'] = $c;
+    }
+} elseif ($segments[0] === 'blog' && count($segments) === 2) {
+    if ($post = Content::post($segments[1])) {
+        $view = 'pages/post';
+        $vars['post'] = $post;
+    }
 } elseif ($segments[0] === 'doctor' && count($segments) === 2) {
     if ($p = Content::provider($segments[1])) {
         $view = 'pages/provider';
         $vars['provider'] = $p;
     }
-} elseif (count($segments) === 1 && preg_match('/^[a-z0-9\-]+$/', $segments[0])) {
-    if ($page = Content::page($segments[0])) {
-        $templates = ['treatments', 'appointment', 'contact', 'sitemap', 'legal'];
+} elseif (count($segments) <= 2 && preg_match('~^[a-z0-9\-]+(/[a-z0-9\-]+)?$~', implode('/', $segments))) {
+    // Pages, including nested ones such as new-patients/what-to-expect
+    if ($page = Content::page(implode('/', $segments))) {
+        $templates = ['treatments', 'appointment', 'contact', 'sitemap', 'legal', 'conditions', 'blog', 'hub'];
         $view = 'pages/' . (in_array($page['template'], $templates, true) ? $page['template'] : 'page');
         $vars['page'] = $page;
     }
@@ -128,10 +139,16 @@ if (!$view && isset($_GET['preview']) && $segments) {
         if ($segments[0] === 'treatments' && isset($segments[1]) && ($s = DB::one('SELECT * FROM services WHERE slug = ?', [$segments[1]]))) {
             $view = 'pages/service';
             $vars['service'] = $s;
+        } elseif ($segments[0] === 'conditions' && isset($segments[1]) && ($c = DB::one('SELECT * FROM conditions WHERE slug = ?', [$segments[1]]))) {
+            $view = 'pages/condition';
+            $vars['condition'] = $c;
+        } elseif ($segments[0] === 'blog' && isset($segments[1]) && ($post = DB::one('SELECT * FROM posts WHERE slug = ?', [$segments[1]]))) {
+            $view = 'pages/post';
+            $vars['post'] = $post;
         } elseif ($segments[0] === 'doctor' && isset($segments[1]) && ($p = DB::one('SELECT * FROM providers WHERE slug = ?', [$segments[1]]))) {
             $view = 'pages/provider';
             $vars['provider'] = $p;
-        } elseif ($page = DB::one('SELECT * FROM pages WHERE slug = ?', [$segments[0]])) {
+        } elseif ($page = DB::one('SELECT * FROM pages WHERE slug = ?', [implode('/', $segments)])) {
             $view = 'pages/page';
             $vars['page'] = $page;
         }

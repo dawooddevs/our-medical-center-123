@@ -19,6 +19,22 @@ $pages = DB::all("SELECT slug, title FROM pages WHERE status = 'published' AND s
       </ul>
       <?php endif; ?>
     </div>
+    <?php if ($conds = Content::conditions()): ?>
+    <div>
+      <h2 class="h4">Conditions</h2>
+      <ul class="sitemap-list">
+        <?php foreach ($conds as $c): ?><li><a href="<?= e(Content::conditionUrl($c)) ?>"><?= e($c['title']) ?></a></li><?php endforeach; ?>
+      </ul>
+    </div>
+    <?php endif; ?>
+    <?php if ($posts = Content::posts()): ?>
+    <div>
+      <h2 class="h4">Blog</h2>
+      <ul class="sitemap-list">
+        <?php foreach ($posts as $bp): ?><li><a href="<?= e(Content::postUrl($bp)) ?>"><?= e($bp['title']) ?></a></li><?php endforeach; ?>
+      </ul>
+    </div>
+    <?php endif; ?>
     <?php foreach (Content::servicesByCategory() as $cat => $items): if (!$items) continue; ?>
     <div>
       <h2 class="h4"><?= e(Content::categoryLabel($cat)) ?></h2>

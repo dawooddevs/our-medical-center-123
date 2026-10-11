@@ -1,7 +1,8 @@
 <?php
 /**
- * Seeds the database on a fresh install: treatments, core pages, redirects and the
- * GoHighLevel booking form and chat widget. Safe to run once.
+ * Seeds the database on a fresh install: treatments, conditions, core pages, the New Patients
+ * section, blog posts, redirects and the GoHighLevel booking form and chat widget. Safe to run once.
+ * The row builders below are also used by content migrations for sites installed earlier.
  *
  * Providers, locations and testimonials start empty, and homepage FAQs start as unpublished
  * drafts. Add or publish them in the dashboard only from information the practice supplies.
@@ -11,45 +12,29 @@ function seed_database(): void
     $now = now();
 
     // ---------- Treatments ----------
-    $services = require __DIR__ . '/services.php';
-    foreach ($services as $i => $s) {
-        $faqs = array_map(fn($f) => ['q' => $f[0], 'a' => $f[1]], $s['faqs'] ?? []);
-        DB::insert('services', [
-            'slug' => $s['slug'],
-            'title' => $s['title'],
-            'menu_label' => $s['menu_label'] ?? '',
-            'category' => $s['category'],
-            'excerpt' => $s['excerpt'],
-            'hero_text' => $s['hero_text'],
-            'image' => '',
-            'icon' => $s['icon'] ?? '',
-            'what_is' => Html::paragraphs($s['what_is']),
-            'conditions' => $s['conditions'],
-            'how_it_works' => Html::paragraphs($s['how_it_works']),
-            'benefits' => $s['benefits'],
-            'what_to_expect' => Html::paragraphs($s['what_to_expect']),
-            'faqs' => json_encode($faqs),
-            'related' => $s['related'],
-            'body_areas' => $s['body_areas'],
-            'featured' => (int)($s['featured'] ?? 0),
-            'coming_soon' => (int)($s['coming_soon'] ?? 0),
-            'show_in_menu' => (int)($s['show_in_menu'] ?? 1),
-            'needs_review' => 1,
-            'sort_order' => ($i + 1) * 10,
-            'status' => $s['status'] ?? 'published',
-            'meta_title' => $s['meta_title'] ?? $s['title'],
-            'meta_description' => $s['meta_description'] ?? str_limit($s['excerpt'], 155),
-            'created_at' => $now,
-            'updated_at' => $now,
-        ]);
+    foreach (require __DIR__ . '/services.php' as $i => $s) {
+        DB::insert('services', seed_service_row($s, ($i + 1) * 10, $now));
+    }
+
+    // ---------- Conditions ----------
+    foreach (require __DIR__ . '/conditions.php' as $i => $c) {
+        DB::insert('conditions', seed_condition_row($c, ($i + 1) * 10, $now));
     }
 
     // ---------- Pages ----------
-    foreach (seed_pages() as $i => $p) {
-        DB::insert('pages', array_merge([
-            'eyebrow' => '', 'intro' => '', 'image' => '', 'content' => '', 'template' => 'default', 'show_cta' => 1, 'is_system' => 0,
-            'needs_review' => 0, 'status' => 'published', 'meta_title' => '', 'meta_description' => '',
-        ], $p, ['sort_order' => ($i + 1) * 10, 'created_at' => $now, 'updated_at' => $now]));
+    $pages = array_merge(seed_pages(), require __DIR__ . '/pages-2026-10.php');
+    foreach ($pages as $i => $p) {
+        DB::insert('pages', seed_page_row($p, ($i + 1) * 10, $now));
+    }
+
+    // ---------- Blog posts ----------
+    foreach (require __DIR__ . '/posts.php' as $i => $p) {
+        DB::insert('posts', seed_post_row($p, ($i + 1) * 10, $now));
+    }
+
+    // ---------- New Patient FAQs (general questions, shown on /new-patients/new-patient-faqs/) ----------
+    foreach (require __DIR__ . '/faqs-new-patients.php' as $i => [$q, $a]) {
+        DB::insert('faqs', ['question' => $q, 'answer' => $a, 'grp' => 'new-patients/new-patient-faqs', 'sort_order' => ($i + 1) * 10, 'status' => 'published', 'created_at' => $now, 'updated_at' => $now]);
     }
 
     // ---------- Homepage FAQs: general drafts only (no practice-specific claims) ----------
@@ -122,5 +107,97 @@ function seed_pages(): array
             'intro' => 'Every page on this website in one place.',
             'meta_title' => 'Sitemap', 'meta_description' => 'A complete list of pages on the Our Medical Center 123 website.',
         ],
+    ];
+}
+
+/** Database row for a treatment record from services.php. */
+function seed_service_row(array $s, int $sort, string $now): array
+{
+    return [
+        'slug' => $s['slug'],
+        'title' => $s['title'],
+        'menu_label' => $s['menu_label'] ?? '',
+        'category' => $s['category'],
+        'excerpt' => $s['excerpt'],
+        'hero_text' => $s['hero_text'],
+        'image' => '',
+        'icon' => $s['icon'] ?? '',
+        'what_is' => Html::paragraphs($s['what_is']),
+        'conditions' => $s['conditions'],
+        'how_it_works' => Html::paragraphs($s['how_it_works']),
+        'benefits' => $s['benefits'],
+        'what_to_expect' => Html::paragraphs($s['what_to_expect']),
+        'faqs' => json_encode(array_map(fn($f) => ['q' => $f[0], 'a' => $f[1]], $s['faqs'] ?? [])),
+        'related' => $s['related'],
+        'body_areas' => $s['body_areas'],
+        'featured' => (int)($s['featured'] ?? 0),
+        'coming_soon' => (int)($s['coming_soon'] ?? 0),
+        'show_in_menu' => (int)($s['show_in_menu'] ?? 1),
+        'needs_review' => 1,
+        'sort_order' => $sort,
+        'status' => $s['status'] ?? 'published',
+        'meta_title' => $s['meta_title'] ?? $s['title'],
+        'meta_description' => $s['meta_description'] ?? str_limit($s['excerpt'], 155),
+        'created_at' => $now,
+        'updated_at' => $now,
+    ];
+}
+
+/** Database row for a condition record from conditions.php. */
+function seed_condition_row(array $c, int $sort, string $now): array
+{
+    return [
+        'slug' => $c['slug'],
+        'title' => $c['title'],
+        'grp' => $c['grp'],
+        'icon' => $c['icon'] ?? '',
+        'excerpt' => $c['excerpt'],
+        'hero_text' => $c['hero_text'] ?? '',
+        'image' => '',
+        'overview' => trim($c['overview'] ?? ''),
+        'symptoms' => $c['symptoms'] ?? '',
+        'causes' => trim($c['causes'] ?? ''),
+        'approach' => trim($c['approach'] ?? ''),
+        'when_to_seek' => trim($c['when_to_seek'] ?? ''),
+        'treatments' => $c['treatments'] ?? '',
+        'faqs' => json_encode(array_map(fn($f) => ['q' => $f[0], 'a' => $f[1]], $c['faqs'] ?? [])),
+        'needs_review' => 1,
+        'sort_order' => $sort,
+        'status' => 'published',
+        'meta_title' => $c['meta_title'] ?? $c['title'],
+        'meta_description' => $c['meta_description'] ?? str_limit($c['excerpt'], 155),
+        'created_at' => $now,
+        'updated_at' => $now,
+    ];
+}
+
+/** Database row for a page record (seed_pages() or pages-2026-10.php). */
+function seed_page_row(array $p, int $sort, string $now): array
+{
+    return array_merge([
+        'eyebrow' => '', 'intro' => '', 'image' => '', 'content' => '', 'template' => 'default', 'show_cta' => 1, 'is_system' => 0,
+        'needs_review' => 0, 'status' => 'published', 'meta_title' => '', 'meta_description' => '', 'sort_order' => $sort,
+    ], $p, ['content' => trim($p['content'] ?? ''), 'created_at' => $now, 'updated_at' => $now]);
+}
+
+/** Database row for a blog post from posts.php. */
+function seed_post_row(array $p, int $sort, string $now): array
+{
+    return [
+        'slug' => $p['slug'],
+        'title' => $p['title'],
+        'topic' => $p['topic'] ?? '',
+        'excerpt' => $p['excerpt'],
+        'image' => '',
+        'content' => trim($p['content']),
+        'related' => $p['related'] ?? '',
+        'published_at' => $p['published_at'] ?? $now,
+        'needs_review' => 1,
+        'sort_order' => $sort,
+        'status' => 'published',
+        'meta_title' => $p['meta_title'] ?? $p['title'],
+        'meta_description' => $p['meta_description'] ?? str_limit($p['excerpt'], 155),
+        'created_at' => $now,
+        'updated_at' => $now,
     ];
 }

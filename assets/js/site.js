@@ -5,7 +5,7 @@
   var $ = function (s, c) { return (c || document).querySelector(s); };
   var $$ = function (s, c) { return Array.prototype.slice.call((c || document).querySelectorAll(s)); };
   var reduced = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
-  var desktop = window.matchMedia('(min-width: 1100px)');
+  var desktop = window.matchMedia('(min-width: 1200px)');
 
   /* ---------- Sticky header + mobile action bar ---------- */
   var header = $('[data-header]');
@@ -302,7 +302,8 @@
         if (show) shown.push(c);
       });
       tEmpty.hidden = shown.length > 0;
-      tCount.textContent = shown.length + (shown.length === 1 ? ' treatment' : ' treatments') + (q ? ' matching “' + tSearch.value.trim() + '”' : '');
+      var noun = tIndex.getAttribute('data-tindex') || 'treatment';
+      tCount.textContent = shown.length + ' ' + noun + (shown.length === 1 ? '' : 's') + (q ? ' matching “' + tSearch.value.trim() + '”' : '');
       if (animate) animateIn(shown);
     }
     $$('.tab', tIndex).forEach(function (t) {

@@ -21,6 +21,11 @@ final class Resources
             $areas[] = ['value' => $k, 'label' => $l];
         }
         $status = [['value' => 'published', 'label' => 'Published'], ['value' => 'draft', 'label' => 'Draft']];
+        $cgroups = [];
+        foreach (Content::CONDITION_GROUPS as $k => $g) {
+            $cgroups[] = ['value' => $k, 'label' => $g['label']];
+        }
+        $faqGroups = [['value' => 'home', 'label' => 'Homepage'], ['value' => 'new-patients/new-patient-faqs', 'label' => 'New Patient FAQs page'], ['value' => 'billing', 'label' => 'Billing & Insurance']];
         $icons = array_map(fn($k) => ['value' => $k, 'label' => $k], array_keys(require APP . '/lib/icons.php'));
         array_unshift($icons, ['value' => '', 'label' => 'Category default']);
         $seo = [
@@ -44,7 +49,7 @@ final class Resources
                 'groups' => ['content' => 'Overview', 'sections' => 'Page sections', 'faq' => 'FAQ', 'seo' => 'SEO'],
                 'fields' => array_merge([
                     ['key' => 'title', 'label' => 'Treatment name', 'type' => 'text', 'required' => true, 'group' => 'content'],
-                    ['key' => 'slug', 'label' => 'URL slug', 'type' => 'slug', 'group' => 'content', 'prefix' => '/service/', 'help' => 'Keep existing slugs unchanged to protect SEO. Add a redirect if you change one.'],
+                    ['key' => 'slug', 'label' => 'URL slug', 'type' => 'slug', 'group' => 'content', 'prefix' => '/treatments/', 'help' => 'Keep existing slugs unchanged to protect SEO. Add a redirect if you change one.'],
                     ['key' => 'menu_label', 'label' => 'Menu label', 'type' => 'text', 'group' => 'content', 'help' => 'Optional shorter/longer name used in the navigation.'],
                     ['key' => 'excerpt', 'label' => 'Card summary', 'type' => 'textarea', 'rows' => 3, 'group' => 'content', 'help' => 'Short description used on treatment cards and listings.'],
                     ['key' => 'hero_text', 'label' => 'Hero value statement', 'type' => 'textarea', 'rows' => 2, 'group' => 'content'],
@@ -65,6 +70,66 @@ final class Resources
                     ['key' => 'needs_review', 'label' => 'Needs content review', 'type' => 'toggle', 'side' => true, 'help' => 'Flags this page on the dashboard until the copy is approved.'],
                     ['key' => 'body_areas', 'label' => '"Where does it hurt?" areas', 'type' => 'checks', 'options' => $areas, 'side' => true],
                     ['key' => 'related', 'label' => 'Related treatments', 'type' => 'relation', 'source' => 'services', 'side' => true, 'help' => '3–4 internal links shown at the bottom of the page.'],
+                ], $seo),
+            ],
+
+            'conditions' => [
+                'table' => 'conditions', 'label' => 'Conditions', 'singular' => 'Condition', 'icon' => 'heart-pulse',
+                'titleKey' => 'title', 'slug' => true, 'url' => 'conditions/{slug}/', 'orderable' => true, 'review' => true,
+                'search' => ['title', 'slug', 'excerpt'],
+                'columns' => [
+                    ['key' => 'title', 'label' => 'Condition', 'type' => 'title'],
+                    ['key' => 'grp', 'label' => 'Group', 'type' => 'option'],
+                    ['key' => 'status', 'label' => 'Status', 'type' => 'status'],
+                    ['key' => 'updated_at', 'label' => 'Updated', 'type' => 'date'],
+                ],
+                'filters' => ['status' => $status, 'grp' => $cgroups],
+                'groups' => ['content' => 'Overview', 'sections' => 'Page sections', 'faq' => 'FAQ', 'seo' => 'SEO'],
+                'fields' => array_merge([
+                    ['key' => 'title', 'label' => 'Condition name', 'type' => 'text', 'required' => true, 'group' => 'content'],
+                    ['key' => 'slug', 'label' => 'URL slug', 'type' => 'slug', 'group' => 'content', 'prefix' => '/conditions/'],
+                    ['key' => 'excerpt', 'label' => 'Card summary', 'type' => 'textarea', 'rows' => 3, 'group' => 'content'],
+                    ['key' => 'hero_text', 'label' => 'Hero text', 'type' => 'textarea', 'rows' => 2, 'group' => 'content'],
+                    ['key' => 'overview', 'label' => 'Overview', 'type' => 'richtext', 'group' => 'sections'],
+                    ['key' => 'symptoms', 'label' => 'Common symptoms', 'type' => 'lines', 'group' => 'sections', 'help' => 'One per line.'],
+                    ['key' => 'causes', 'label' => 'Common causes', 'type' => 'richtext', 'group' => 'sections'],
+                    ['key' => 'approach', 'label' => 'How we evaluate and treat it', 'type' => 'richtext', 'group' => 'sections'],
+                    ['key' => 'when_to_seek', 'label' => 'When to get urgent care', 'type' => 'richtext', 'group' => 'sections', 'help' => 'Warning signs that should not wait for a routine appointment.'],
+                    ['key' => 'faqs', 'label' => 'Frequently asked questions', 'type' => 'repeater', 'group' => 'faq', 'add' => 'Add question',
+                        'fields' => [['key' => 'q', 'label' => 'Question', 'type' => 'text'], ['key' => 'a', 'label' => 'Answer', 'type' => 'textarea', 'rows' => 3]]],
+                    ['key' => 'status', 'label' => 'Status', 'type' => 'select', 'options' => $status, 'side' => true, 'default' => 'draft'],
+                    ['key' => 'grp', 'label' => 'Group', 'type' => 'select', 'options' => $cgroups, 'side' => true, 'required' => true],
+                    ['key' => 'image', 'label' => 'Featured image', 'type' => 'image', 'side' => true, 'help' => 'Used on cards and the page hero. Media → Auto-assign matches a file named after the slug, e.g. back-pain.jpg.'],
+                    ['key' => 'icon', 'label' => 'Icon', 'type' => 'select', 'options' => $icons, 'side' => true],
+                    ['key' => 'treatments', 'label' => 'Treatments that may help', 'type' => 'relation', 'source' => 'services', 'side' => true],
+                    ['key' => 'needs_review', 'label' => 'Needs content review', 'type' => 'toggle', 'side' => true],
+                ], $seo),
+            ],
+
+            'posts' => [
+                'table' => 'posts', 'label' => 'Blog Posts', 'singular' => 'Blog post', 'icon' => 'pencil',
+                'titleKey' => 'title', 'slug' => true, 'url' => 'blog/{slug}/', 'orderable' => false, 'review' => true,
+                'search' => ['title', 'slug', 'excerpt'],
+                'columns' => [
+                    ['key' => 'image', 'label' => '', 'type' => 'thumb'],
+                    ['key' => 'title', 'label' => 'Title', 'type' => 'title'],
+                    ['key' => 'topic', 'label' => 'Topic', 'type' => 'text'],
+                    ['key' => 'status', 'label' => 'Status', 'type' => 'status'],
+                    ['key' => 'published_at', 'label' => 'Published', 'type' => 'date'],
+                ],
+                'filters' => ['status' => $status],
+                'groups' => ['content' => 'Post', 'seo' => 'SEO'],
+                'fields' => array_merge([
+                    ['key' => 'title', 'label' => 'Title', 'type' => 'text', 'required' => true, 'group' => 'content'],
+                    ['key' => 'slug', 'label' => 'URL slug', 'type' => 'slug', 'group' => 'content', 'prefix' => '/blog/'],
+                    ['key' => 'excerpt', 'label' => 'Summary', 'type' => 'textarea', 'rows' => 3, 'group' => 'content', 'help' => 'Shown on the blog page and in search results.'],
+                    ['key' => 'content', 'label' => 'Article', 'type' => 'richtext', 'group' => 'content'],
+                    ['key' => 'status', 'label' => 'Status', 'type' => 'select', 'options' => $status, 'side' => true, 'default' => 'draft'],
+                    ['key' => 'published_at', 'label' => 'Publish date', 'type' => 'text', 'side' => true, 'placeholder' => 'YYYY-MM-DD', 'help' => 'Posts dated in the future stay hidden until that date.'],
+                    ['key' => 'topic', 'label' => 'Topic', 'type' => 'text', 'side' => true, 'placeholder' => 'e.g. Back & Neck'],
+                    ['key' => 'image', 'label' => 'Featured image', 'type' => 'image', 'side' => true, 'help' => 'Media → Auto-assign matches a file named after the slug, or blog-<slug>.'],
+                    ['key' => 'related', 'label' => 'Related treatments', 'type' => 'relation', 'source' => 'services', 'side' => true],
+                    ['key' => 'needs_review', 'label' => 'Needs content review', 'type' => 'toggle', 'side' => true],
                 ], $seo),
             ],
 
@@ -117,7 +182,7 @@ final class Resources
                 'groups' => ['content' => 'Content', 'seo' => 'SEO'],
                 'fields' => array_merge([
                     ['key' => 'title', 'label' => 'Page title (H1)', 'type' => 'text', 'required' => true, 'group' => 'content'],
-                    ['key' => 'slug', 'label' => 'URL slug', 'type' => 'slug', 'group' => 'content', 'prefix' => '/'],
+                    ['key' => 'slug', 'label' => 'URL slug', 'type' => 'slug', 'nested' => true, 'group' => 'content', 'prefix' => '/', 'help' => 'Use a slash to place a page under another, e.g. new-patients/what-to-expect.'],
                     ['key' => 'eyebrow', 'label' => 'Eyebrow', 'type' => 'text', 'group' => 'content', 'help' => 'Small label above the title, e.g. PATIENT CENTER.'],
                     ['key' => 'intro', 'label' => 'Intro text', 'type' => 'textarea', 'rows' => 3, 'group' => 'content'],
                     ['key' => 'content', 'label' => 'Body content', 'type' => 'richtext', 'group' => 'content'],
@@ -126,7 +191,8 @@ final class Resources
                         ['value' => 'default', 'label' => 'Standard content'], ['value' => 'legal', 'label' => 'Legal / narrow'],
                         ['value' => 'treatments', 'label' => 'Treatments index'],
                         ['value' => 'appointment', 'label' => 'Appointment'], ['value' => 'contact', 'label' => 'Contact'],
-                        ['value' => 'sitemap', 'label' => 'Sitemap'],
+                        ['value' => 'sitemap', 'label' => 'Sitemap'], ['value' => 'hub', 'label' => 'Section hub (lists its sub-pages)'],
+                        ['value' => 'conditions', 'label' => 'Conditions index'], ['value' => 'blog', 'label' => 'Blog index'],
                     ]],
                     ['key' => 'image', 'label' => 'Hero image', 'type' => 'image', 'side' => true],
                     ['key' => 'show_cta', 'label' => 'Show appointment CTA', 'type' => 'toggle', 'side' => true, 'default' => 1],
@@ -165,13 +231,13 @@ final class Resources
                     ['key' => 'grp', 'label' => 'Shown on', 'type' => 'option'],
                     ['key' => 'status', 'label' => 'Status', 'type' => 'status'],
                 ],
-                'filters' => ['status' => $status, 'grp' => [['value' => 'home', 'label' => 'Homepage'], ['value' => 'billing', 'label' => 'Billing & Insurance']]],
+                'filters' => ['status' => $status, 'grp' => $faqGroups],
                 'groups' => ['content' => 'Question'],
                 'fields' => [
                     ['key' => 'question', 'label' => 'Question', 'type' => 'text', 'required' => true, 'group' => 'content'],
                     ['key' => 'answer', 'label' => 'Answer', 'type' => 'textarea', 'rows' => 6, 'group' => 'content'],
                     ['key' => 'status', 'label' => 'Status', 'type' => 'select', 'options' => $status, 'side' => true, 'default' => 'published'],
-                    ['key' => 'grp', 'label' => 'Shown on', 'type' => 'select', 'side' => true, 'options' => [['value' => 'home', 'label' => 'Homepage'], ['value' => 'billing', 'label' => 'Billing & Insurance']]],
+                    ['key' => 'grp', 'label' => 'Shown on', 'type' => 'select', 'side' => true, 'options' => $faqGroups],
                 ],
             ],
 
@@ -330,6 +396,9 @@ final class Resources
             case 'number':
                 return (int)$v;
             case 'slug':
+                if (!empty($f['nested'])) {
+                    return implode('/', array_filter(array_map('slugify', explode('/', (string)$v)), 'strlen'));
+                }
                 return slugify((string)$v);
             case 'select':
                 $v = (string)$v;

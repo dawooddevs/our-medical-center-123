@@ -26,7 +26,35 @@
         </div>
       </div>
 
-<?php if ($forms): ?>
+<?php if ($condGroups = Content::conditionsByGroup()): ?>
+      <div class="mnav__section">
+        <button class="mnav__toggle" type="button" aria-expanded="false">Conditions<?= icon('chevron-down') ?></button>
+        <div class="mnav__sub" hidden>
+          <a class="mnav__all" href="<?= e(url('conditions/')) ?>">View All Conditions <?= icon('arrow-right') ?></a>
+          <?php foreach ($condGroups as $gk => $items): $g = Content::CONDITION_GROUPS[$gk]; ?>
+          <div class="mnav__section mnav__section--nested">
+            <button class="mnav__toggle mnav__toggle--nested" type="button" aria-expanded="false"><span class="mnav__cat-icon"><?= icon($g['icon']) ?></span><?= e($g['label']) ?><?= icon('chevron-down') ?></button>
+            <div class="mnav__sub" hidden>
+              <?php foreach ($items as $cn): ?><a href="<?= e(Content::conditionUrl($cn)) ?>"><?= e($cn['title']) ?></a><?php endforeach; ?>
+            </div>
+          </div>
+          <?php endforeach; ?>
+        </div>
+      </div>
+<?php endif; ?>
+
+<?php if ($npHub = Content::page('new-patients')): ?>
+      <div class="mnav__section">
+        <button class="mnav__toggle" type="button" aria-expanded="false">New Patients<?= icon('chevron-down') ?></button>
+        <div class="mnav__sub" hidden>
+          <a href="<?= e(url('new-patients/')) ?>"><?= e($npHub['title']) ?></a>
+          <?php foreach (Content::childPages('new-patients') as $np): ?><a href="<?= e(url($np['slug'] . '/')) ?>"><?= e($np['title']) ?></a><?php endforeach; ?>
+          <?php foreach ($forms as $f): ?>
+          <a href="<?= e($formUrl($f)) ?>" target="_blank" rel="noopener"><?= icon('download') ?><?= e($f['label']) ?></a>
+          <?php endforeach; ?>
+        </div>
+      </div>
+<?php elseif ($forms): ?>
       <div class="mnav__section">
         <button class="mnav__toggle" type="button" aria-expanded="false">Patient Forms<?= icon('chevron-down') ?></button>
         <div class="mnav__sub" hidden>
@@ -35,6 +63,10 @@
           <?php endforeach; ?>
         </div>
       </div>
+<?php endif; ?>
+
+<?php if (Content::page('blog')): ?>
+      <a class="mnav__link" href="<?= e(url('blog/')) ?>">Blog<?= icon('arrow-right') ?></a>
 <?php endif; ?>
 
       <div class="mnav__section">

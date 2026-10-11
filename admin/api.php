@@ -120,7 +120,7 @@ try {
             $top = DB::all('SELECT path, SUM(views) AS v FROM pageviews WHERE day >= ? GROUP BY path ORDER BY v DESC LIMIT 8', [$from]);
             $since7 = date('Y-m-d H:i:s', strtotime('-7 days'));
             $review = [];
-            foreach (['services' => 'title', 'providers' => 'name', 'pages' => 'title'] as $t => $col) {
+            foreach (['services' => 'title', 'conditions' => 'title', 'posts' => 'title', 'providers' => 'name', 'pages' => 'title'] as $t => $col) {
                 foreach (DB::all("SELECT id, $col AS title, status FROM $t WHERE needs_review = 1 ORDER BY sort_order, id LIMIT 50") as $r) {
                     $review[] = ['type' => $t, 'id' => (int)$r['id'], 'title' => $r['title'], 'status' => $r['status']];
                 }
@@ -130,6 +130,8 @@ try {
             if ($noPhoto) $health[] = ['level' => 'warn', 'text' => "$noPhoto provider profile(s) have no photo", 'link' => '#/providers'];
             $noImg = (int)DB::val("SELECT COUNT(*) FROM services WHERE status='published' AND (image = '' OR image IS NULL)");
             if ($noImg) $health[] = ['level' => 'info', 'text' => "$noImg treatment(s) use the placeholder image", 'link' => '#/services'];
+            $noPostImg = (int)DB::val("SELECT COUNT(*) FROM posts WHERE status='published' AND (image = '' OR image IS NULL)");
+            if ($noPostImg) $health[] = ['level' => 'info', 'text' => "$noPostImg blog post(s) have no featured image", 'link' => '#/posts'];
             $emptyT = (int)DB::val("SELECT COUNT(*) FROM testimonials WHERE content IS NULL OR content = ''");
             if ($emptyT) $health[] = ['level' => 'warn', 'text' => "$emptyT testimonial(s) need their original text", 'link' => '#/testimonials'];
             $noVideo = array_filter(Content::videos(), fn($v) => $v['source'] === 'missing');
@@ -144,7 +146,7 @@ try {
                     'providers' => (int)DB::val("SELECT COUNT(*) FROM providers WHERE status='published'"),
                     'pages' => (int)DB::val("SELECT COUNT(*) FROM pages WHERE status='published'"),
                     'media' => (int)DB::val('SELECT COUNT(*) FROM media'),
-                    'drafts' => (int)DB::val("SELECT (SELECT COUNT(*) FROM services WHERE status='draft') + (SELECT COUNT(*) FROM pages WHERE status='draft') + (SELECT COUNT(*) FROM providers WHERE status='draft')"),
+                    'drafts' => (int)DB::val("SELECT (SELECT COUNT(*) FROM services WHERE status='draft') + (SELECT COUNT(*) FROM pages WHERE status='draft') + (SELECT COUNT(*) FROM providers WHERE status='draft') + (SELECT COUNT(*) FROM posts WHERE status='draft') + (SELECT COUNT(*) FROM conditions WHERE status='draft')"),
                     'review' => count($review),
                 ],
                 'views' => ['days' => array_map(fn($d, $v) => ['day' => $d, 'v' => $v], array_keys($days), array_values($days)), 'total' => array_sum($days), 'prev' => $prev],
@@ -286,7 +288,14 @@ try {
             }
             $stamp = now();
             $row['updated_at'] = $stamp;
-            if (in_array($t, ['services', 'providers', 'pages'], true)) {
+            if ($t === 'posts') {
+                // Publish date: empty means now; anything else is normalised to a full timestamp
+                if (array_key_exists('published_at', $row) || !$existing) {
+                    $ts = strtotime((string)($row['published_at'] ?? ''));
+                    $row['published_at'] = $ts ? date('Y-m-d H:i:s', $ts) : now();
+                }
+            }
+            if (in_array($t, ['services', 'conditions', 'posts', 'providers', 'pages'], true)) {
                 $row['updated_by'] = (int)$u['id'];
             }
             if ($existing) {
@@ -655,7 +664,7 @@ try {
             $q = trim((string)($in['q'] ?? ''));
             $out = [];
             if (mb_strlen($q) >= 2) {
-                foreach (['services', 'providers', 'pages', 'testimonials', 'faqs', 'locations'] as $type) {
+                foreach (['services', 'conditions', 'posts', 'providers', 'pages', 'testimonials', 'faqs', 'locations'] as $type) {
                     $def = Resources::get($type);
                     $tk = $def['titleKey'];
                     foreach (DB::all("SELECT id, $tk AS title FROM {$def['table']} WHERE $tk LIKE ? ORDER BY $tk LIMIT 5", ["%$q%"]) as $r) {
@@ -692,7 +701,7 @@ try {
         case 'backup.export':
             need('settings.manage');
             $dump = ['exported_at' => date('c'), 'version' => VERSION];
-            foreach (['settings', 'services', 'providers', 'pages', 'locations', 'testimonials', 'faqs', 'redirects', 'media'] as $t) {
+            foreach (['settings', 'services', 'conditions', 'posts', 'providers', 'pages', 'locations', 'testimonials', 'faqs', 'redirects', 'media'] as $t) {
                 $dump[$t] = DB::all("SELECT * FROM $t");
             }
             header('Content-Type: application/json; charset=utf-8');

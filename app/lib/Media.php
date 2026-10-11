@@ -249,6 +249,8 @@ final class Media
     private const REF_COLUMNS = [
         ['services', 'image', 'title'],
         ['pages', 'image', 'title'],
+        ['conditions', 'image', 'title'],
+        ['posts', 'image', 'title'],
         ['providers', 'photo', 'name'],
         ['locations', 'image', 'name'],
     ];
@@ -335,8 +337,20 @@ final class Media
                 $alt($m, $r['title'] . ' at ' . $site);
             });
         }
+        foreach (DB::all('SELECT id, slug, title, image FROM conditions ORDER BY sort_order') as $r) {
+            $add('Condition', $r['title'], (string)$r['image'], $find(['condition-' . $r['slug'], $r['slug'], $r['title']]), function ($m) use ($r, $alt, $site) {
+                DB::update('conditions', ['image' => $m['path'], 'updated_at' => now()], 'id = ?', [$r['id']]);
+                $alt($m, $r['title'] . ' care at ' . $site);
+            });
+        }
+        foreach (DB::all('SELECT id, slug, title, image FROM posts ORDER BY published_at DESC') as $r) {
+            $add('Blog post', $r['title'], (string)$r['image'], $find(['blog-' . $r['slug'], $r['slug'], $r['title']]), function ($m) use ($r, $alt) {
+                DB::update('posts', ['image' => $m['path'], 'updated_at' => now()], 'id = ?', [$r['id']]);
+                $alt($m, $r['title']);
+            });
+        }
         foreach (DB::all('SELECT id, slug, title, image FROM pages') as $r) {
-            $add('Page', $r['title'], (string)$r['image'], $find(['page-' . $r['slug']]), function ($m) use ($r, $alt, $site) {
+            $add('Page', $r['title'], (string)$r['image'], $find(['page-' . str_replace('/', '-', $r['slug'])]), function ($m) use ($r, $alt, $site) {
                 DB::update('pages', ['image' => $m['path'], 'updated_at' => now()], 'id = ?', [$r['id']]);
                 $alt($m, $r['title'] . ' — ' . $site);
             });

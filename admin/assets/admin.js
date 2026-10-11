@@ -241,7 +241,7 @@
       { hash: '#/dashboard', label: 'Dashboard', icon: 'dashboard' },
       { group: 'Content' }
     ];
-    ['services', 'providers', 'pages', 'testimonials', 'faqs', 'locations'].forEach(function (k) {
+    ['services', 'conditions', 'posts', 'providers', 'pages', 'testimonials', 'faqs', 'locations'].forEach(function (k) {
       if (R[k] && can('content.view')) items.push({ hash: '#/' + k, label: R[k].label, icon: R[k].icon });
     });
     if (can('media.view')) items.push({ hash: '#/media', label: 'Media Library', icon: 'image' });
@@ -735,8 +735,10 @@
       case 'slug':
         wrap.innerHTML = label + '<div class="prefix"><span>' + esc(f.prefix || '/') + '</span><input id="' + id + '" value="' + esc(v) + '" spellcheck="false" placeholder="auto-generated"></div>' + help;
         var si = $('input', wrap), touched = !ctx.isNew || !!v;
-        si.addEventListener('input', function () { touched = true; set(slugify(si.value)); });
-        si.addEventListener('blur', function () { si.value = slugify(si.value); });
+        // Nested slugs (pages) keep slashes: new-patients/what-to-expect
+        var slugFn = f.nested ? function (x) { return String(x || '').split('/').map(slugify).filter(Boolean).join('/'); } : slugify;
+        si.addEventListener('input', function () { touched = true; set(slugFn(si.value)); });
+        si.addEventListener('blur', function () { si.value = slugFn(si.value); });
         if (ctx.isNew) document.addEventListener('dash:title', function (e) { if (!touched && document.body.contains(si)) { si.value = slugify(e.detail); vals[f.key] = si.value; } });
         break;
       case 'select':

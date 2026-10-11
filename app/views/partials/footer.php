@@ -26,7 +26,12 @@ $socialLabels = ['facebook' => 'Facebook', 'x-social' => 'X (Twitter)', 'instagr
         <h2 class="footer__title">Patients</h2>
         <ul class="footer__links">
           <li><a href="<?= e(url('book-appointment/')) ?>">Book Appointment</a></li>
+          <?php if (Content::page('new-patients')): ?>
+          <li><a href="<?= e(url('new-patients/')) ?>">New Patients</a></li>
+          <?php foreach (Content::childPages('new-patients') as $np): ?><li><a href="<?= e(url($np['slug'] . '/')) ?>"><?= e($np['title']) ?></a></li><?php endforeach; ?>
+          <?php endif; ?>
           <?php if (Content::patientForms()): ?><li><a href="<?= e(url('book-appointment/#patient-forms')) ?>">Patient Forms</a></li><?php endif; ?>
+          <?php if (Content::page('blog')): ?><li><a href="<?= e(url('blog/')) ?>">Blog</a></li><?php endif; ?>
           <li><a href="<?= e(url('contact-us/')) ?>">Contact</a></li>
         </ul>
       </div>
@@ -36,6 +41,7 @@ $socialLabels = ['facebook' => 'Facebook', 'x-social' => 'X (Twitter)', 'instagr
           <?php foreach (Content::CATEGORIES as $k => $c): ?>
           <li><a href="<?= e(url('treatments/?category=' . $k)) ?>"><?= e($c['label']) ?></a></li>
           <?php endforeach; ?>
+          <?php if (Content::conditions()): ?><li><a href="<?= e(url('conditions/')) ?>">Conditions We Treat</a></li><?php endif; ?>
           <li><a class="footer__more" href="<?= e(url('treatments/')) ?>">View All Treatments <?= icon('arrow-right') ?></a></li>
         </ul>
       </div>

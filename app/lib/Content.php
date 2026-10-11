@@ -5,9 +5,17 @@
 final class Content
 {
     public const CATEGORIES = [
-        'injury' => ['label' => 'Injury & Sports Care', 'short' => 'Injury Care', 'icon' => 'activity', 'blurb' => 'Recovery-focused care after sports, auto and everyday injuries.'],
-        'spine' => ['label' => 'Spine & Chiropractic', 'short' => 'Spine', 'icon' => 'spine', 'blurb' => 'Chiropractic care and spinal decompression for back and neck pain.'],
-        'wellness' => ['label' => 'Regenerative & Wellness', 'short' => 'Wellness', 'icon' => 'flask', 'blurb' => 'Regenerative medicine, IV therapy and medically supervised weight loss.'],
+        'injury' => ['label' => 'Injury & Recovery', 'short' => 'Injury Care', 'icon' => 'activity', 'blurb' => 'Care after sports, auto and everyday injuries, including SoftWave and laser therapy.'],
+        'spine' => ['label' => 'Spine & Nerve Care', 'short' => 'Spine & Nerve', 'icon' => 'spine', 'blurb' => 'Chiropractic care, spinal decompression and a program for neuropathy.'],
+        'regenerative' => ['label' => 'Regenerative & Joint Care', 'short' => 'Joint Care', 'icon' => 'flask', 'blurb' => 'Regenerative options and focused care for knees, hips, shoulders and other joints.'],
+        'wellness' => ['label' => 'Wellness & Longevity', 'short' => 'Wellness', 'icon' => 'heart-pulse', 'blurb' => 'IV therapy, medical weight loss, hormones, peptides and healthy aging.'],
+    ];
+
+    /** Groups for condition pages (/conditions/). */
+    public const CONDITION_GROUPS = [
+        'spine' => ['label' => 'Spine & Nerve', 'icon' => 'spine', 'blurb' => 'Back and neck pain, sciatica, disc problems and nerve symptoms.'],
+        'joints' => ['label' => 'Joints & Mobility', 'icon' => 'activity', 'blurb' => 'Knee, hip, shoulder and general joint pain.'],
+        'metabolic' => ['label' => 'Weight & Metabolic', 'icon' => 'target', 'blurb' => 'Weight that is hard to shift and related health concerns.'],
     ];
 
     public const PROVIDER_TYPES = [
@@ -28,7 +36,10 @@ final class Content
     public static function explorerServices(string $cat): array
     {
         if ($cat === 'featured') {
-            return self::servicesBySlugs(csv_list(setting('featured_services')));
+            // The chosen order first, then every other published treatment
+            $first = self::servicesBySlugs(csv_list(setting('featured_services')));
+            $seen = array_column($first, 'slug');
+            return array_merge($first, array_values(array_filter(self::services(), fn($s) => !in_array($s['slug'], $seen, true))));
         }
         return array_values(array_filter(self::services(), fn($s) => $s['category'] === $cat));
     }
@@ -107,6 +118,102 @@ final class Content
     public static function faqs(string $group): array
     {
         return DB::all("SELECT * FROM faqs WHERE grp = ? AND status = 'published' ORDER BY sort_order, id", [$group]);
+    }
+
+    // ---------------------------------------------------------------- Conditions
+
+    public static function conditions(bool $publishedOnly = true): array
+    {
+        $key = 'conditions' . (int)$publishedOnly;
+        if (!isset(self::$cache[$key])) {
+            try {
+                self::$cache[$key] = DB::all('SELECT * FROM conditions' . ($publishedOnly ? " WHERE status = 'published'" : '') . ' ORDER BY sort_order, title');
+            } catch (Throwable $e) {
+                self::$cache[$key] = []; // table not created yet (before the migration runs)
+            }
+        }
+        return self::$cache[$key];
+    }
+
+    public static function conditionsByGroup(): array
+    {
+        $out = array_fill_keys(array_keys(self::CONDITION_GROUPS), []);
+        foreach (self::conditions() as $c) {
+            $out[$c['grp']][] = $c;
+        }
+        return array_filter($out);
+    }
+
+    public static function condition(string $slug): ?array
+    {
+        try {
+            return DB::one("SELECT * FROM conditions WHERE slug = ? AND status = 'published'", [$slug]);
+        } catch (Throwable $e) {
+            return null;
+        }
+    }
+
+    public static function conditionUrl(array $c): string
+    {
+        return url('conditions/' . $c['slug'] . '/');
+    }
+
+    /** Published conditions that list this treatment among their care options. */
+    public static function conditionsForService(string $slug): array
+    {
+        return array_values(array_filter(self::conditions(), fn($c) => in_array($slug, csv_list($c['treatments']), true)));
+    }
+
+    // ---------------------------------------------------------------- Blog
+
+    public static function posts(int $limit = 0, int $offset = 0): array
+    {
+        try {
+            $sql = "SELECT * FROM posts WHERE status = 'published' AND (published_at IS NULL OR published_at <= ?) ORDER BY published_at DESC, id DESC";
+            if ($limit > 0) {
+                $sql .= ' LIMIT ' . (int)$limit . ' OFFSET ' . (int)$offset;
+            }
+            return DB::all($sql, [now()]);
+        } catch (Throwable $e) {
+            return [];
+        }
+    }
+
+    public static function postCount(): int
+    {
+        try {
+            return (int)DB::val("SELECT COUNT(*) FROM posts WHERE status = 'published' AND (published_at IS NULL OR published_at <= ?)", [now()]);
+        } catch (Throwable $e) {
+            return 0;
+        }
+    }
+
+    public static function post(string $slug): ?array
+    {
+        try {
+            return DB::one("SELECT * FROM posts WHERE slug = ? AND status = 'published' AND (published_at IS NULL OR published_at <= ?)", [$slug, now()]);
+        } catch (Throwable $e) {
+            return null;
+        }
+    }
+
+    public static function postUrl(array $p): string
+    {
+        return url('blog/' . $p['slug'] . '/');
+    }
+
+    /** Estimated reading time in minutes (about 220 words a minute). */
+    public static function readingTime(?string $html): int
+    {
+        return max(1, (int)ceil(str_word_count(strip_tags((string)$html)) / 200));
+    }
+
+    // ---------------------------------------------------------------- Pages
+
+    /** Published pages nested under a parent slug, e.g. new-patients/what-to-expect. */
+    public static function childPages(string $parent): array
+    {
+        return DB::all("SELECT * FROM pages WHERE status = 'published' AND slug LIKE ? ORDER BY sort_order, title", [$parent . '/%']);
     }
 
     public static function serviceUrl(array $s): string

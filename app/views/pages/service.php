@@ -127,6 +127,14 @@ partial('inner-hero', [
         </ul>
       </div>
       <?php endif; ?>
+      <?php if ($forConditions = Content::conditionsForService($s['slug'])): ?>
+      <div class="sidecard">
+        <h2 class="sidecard__h">Conditions it may help</h2>
+        <ul class="sidecard__list">
+          <?php foreach ($forConditions as $o): ?><li><a href="<?= e(Content::conditionUrl($o)) ?>"><?= e($o['title']) ?><?= icon('chevron-right') ?></a></li><?php endforeach; ?>
+        </ul>
+      </div>
+      <?php endif; ?>
       <div class="sidecard">
         <h2 class="sidecard__h"><?= e($cat['label']) ?></h2>
         <ul class="sidecard__list">

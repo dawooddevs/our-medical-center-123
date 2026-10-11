@@ -57,12 +57,38 @@ $contact = [
           </div>
         </li>
 
-        <li class="nav__item"><a class="nav__link" href="<?= e(url('book-appointment/')) ?>"<?= $cur('/book-appointment/') ?>>Book Appointment</a></li>
-<?php if ($forms): ?>
+<?php $condGroups = Content::conditionsByGroup(); if ($condGroups): ?>
         <li class="nav__item has-drop">
-          <button class="nav__link" type="button" aria-expanded="false" aria-controls="dd-forms">Patient Forms<?= icon('chevron-down', 'icon nav__chev') ?></button>
-          <div class="dropdown" id="dd-forms">
+          <button class="nav__link" type="button" aria-expanded="false" aria-controls="dd-conditions">Conditions<?= icon('chevron-down', 'icon nav__chev') ?></button>
+          <div class="dropdown" id="dd-conditions">
             <ul class="dropdown__list">
+              <?php foreach ($condGroups as $gk => $items): $g = Content::CONDITION_GROUPS[$gk]; ?>
+              <li class="dropdown__item has-sub">
+                <a class="dropdown__link" href="<?= e(url('conditions/?category=' . $gk)) ?>" aria-haspopup="true"><span class="dropdown__icon"><?= icon($g['icon']) ?></span><span><strong><?= e($g['label']) ?></strong><small><?= e(plural(count($items), 'condition', 'conditions')) ?></small></span><?= icon('chevron-right', 'icon dropdown__chev') ?></a>
+                <div class="dropdown__sub">
+                  <p class="dropdown__sub-title"><?= e($g['label']) ?></p>
+                  <ul>
+                    <?php foreach ($items as $cn): ?>
+                    <li><a href="<?= e(Content::conditionUrl($cn)) ?>"<?= $cur('/conditions/' . $cn['slug'] . '/') ?>><?= e($cn['title']) ?></a></li>
+                    <?php endforeach; ?>
+                  </ul>
+                </div>
+              </li>
+              <?php endforeach; ?>
+            </ul>
+            <a class="dropdown__all" href="<?= e(url('conditions/')) ?>">View all conditions <?= icon('arrow-right') ?></a>
+          </div>
+        </li>
+<?php endif; ?>
+<?php $npHub = Content::page('new-patients'); $npPages = $npHub ? Content::childPages('new-patients') : []; if ($npHub): ?>
+        <li class="nav__item has-drop">
+          <button class="nav__link" type="button" aria-expanded="false" aria-controls="dd-new-patients">New Patients<?= icon('chevron-down', 'icon nav__chev') ?></button>
+          <div class="dropdown" id="dd-new-patients">
+            <ul class="dropdown__list">
+              <li><a class="dropdown__link" href="<?= e(url('new-patients/')) ?>"<?= $cur('/new-patients/') ?>><span class="dropdown__icon"><?= icon('user') ?></span><span><strong><?= e($npHub['title']) ?></strong><small>Start here before your first visit</small></span></a></li>
+              <?php foreach ($npPages as $i => $np): ?>
+              <li><a class="dropdown__link" href="<?= e(url($np['slug'] . '/')) ?>"<?= $cur('/' . $np['slug'] . '/') ?>><span class="dropdown__icon"><?= icon(['clipboard', 'credit-card', 'message-square'][$i % 3]) ?></span><span><strong><?= e($np['title']) ?></strong><small><?= e(str_limit((string)$np['intro'], 46)) ?></small></span></a></li>
+              <?php endforeach; ?>
               <?php foreach ($forms as $f): ?>
               <li><a class="dropdown__link" href="<?= e($formUrl($f)) ?>" target="_blank" rel="noopener"><span class="dropdown__icon"><?= icon('download') ?></span><span><strong><?= e($f['label']) ?></strong><small>PDF download</small></span></a></li>
               <?php endforeach; ?>
@@ -70,7 +96,9 @@ $contact = [
           </div>
         </li>
 <?php endif; ?>
-
+<?php if (Content::page('blog')): ?>
+        <li class="nav__item"><a class="nav__link" href="<?= e(url('blog/')) ?>"<?= str_starts_with($path ?? '', '/blog/') ? ' aria-current="page"' : '' ?>>Blog</a></li>
+<?php endif; ?>
         <li class="nav__item has-drop">
           <button class="nav__link" type="button" aria-expanded="false" aria-controls="dd-contact">Contact<?= icon('chevron-down', 'icon nav__chev') ?></button>
           <div class="dropdown dropdown--right" id="dd-contact">
