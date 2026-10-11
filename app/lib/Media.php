@@ -301,21 +301,57 @@ final class Media
      * "page-about-us", "location-main", provider names, "home-hero", "logo", …). A field that
      * points at a deleted file counts as empty, so a fresh upload fills it without "overwrite".
      */
+    /**
+     * Name index for matching uploads to content. Each image is indexed by its stored file name, its
+     * original upload name (not cut to 60 characters) and both without a "-2"/"-thumb" suffix, plus
+     * a hyphen-free form so "glp-1" and "glp1" match. Newest upload wins.
+     */
+    public static function imageIndex(array $images): array
+    {
+        $exact = [];
+        $loose = [];
+        foreach ($images as $m) {
+            $names = [slugify(pathinfo((string)$m['path'], PATHINFO_FILENAME)), slugify(pathinfo((string)$m['original_name'], PATHINFO_FILENAME))];
+            foreach ($names as $n) {
+                if ($n === '') continue;
+                $stripped = (string)preg_replace('/-(\d+|thumb)$/', '', $n);
+                $exact[$stripped] = $m;
+                $exact[$n] = $m;
+                $loose[str_replace('-', '', $stripped)] = $m;
+                $loose[str_replace('-', '', $n)] = $m;
+            }
+        }
+        return ['exact' => $exact, 'loose' => $loose];
+    }
+
+    /** First upload whose name matches one of the keys (slugified): exact, then ignoring hyphens, then a long shared prefix. */
+    public static function matchImage(array $index, array $keys): ?array
+    {
+        $keys = array_values(array_filter(array_map(fn($k) => slugify((string)$k), $keys)));
+        foreach ($keys as $k) {
+            if (isset($index['exact'][$k])) return $index['exact'][$k];
+        }
+        foreach ($keys as $k) {
+            $c = str_replace('-', '', $k);
+            if (isset($index['loose'][$c])) return $index['loose'][$c];
+        }
+        // A file named after the start of a long title or slug (at least 24 letters in common)
+        foreach ($keys as $k) {
+            $c = str_replace('-', '', $k);
+            foreach ($index['loose'] as $name => $m) {
+                $short = strlen($name) < strlen($c) ? $name : $c;
+                if (strlen($short) >= 24 && str_starts_with(strlen($name) < strlen($c) ? $c : $name, $short)) return $m;
+            }
+        }
+        return null;
+    }
+
     public static function autoAssign(bool $apply, bool $overwrite, bool $includeSettings): array
     {
         $images = DB::all("SELECT * FROM media WHERE kind = 'image' ORDER BY id ASC");
         $keyOf = fn(string $path): string => (string)preg_replace('/-(\d+|thumb)$/', '', slugify(pathinfo($path, PATHINFO_FILENAME)));
-        $files = [];
-        foreach ($images as $m) {
-            $files[$keyOf($m['path'])] = $m; // newest upload wins
-        }
-        $find = function (array $keys) use ($files) {
-            foreach ($keys as $k) {
-                $k = slugify((string)$k);
-                if ($k !== '' && isset($files[$k])) return $files[$k];
-            }
-            return null;
-        };
+        $index = self::imageIndex($images);
+        $find = fn(array $keys) => self::matchImage($index, $keys);
         $matches = [];
         $add = function (string $kind, string $label, string $current, ?array $m, callable $save) use (&$matches, $apply, $overwrite, $keyOf) {
             if (!$m) return;
@@ -372,7 +408,7 @@ final class Media
                 $add('Site', $label, (string)setting($key, ''), $find((array)$file), function ($m) use ($key) { Settings::set($key, $m['path']); });
             }
         }
-        return ['matches' => $matches, 'files' => count($files)];
+        return ['matches' => $matches, 'files' => count($images)];
     }
 
     /** Clear content fields and image settings that still point at deleted files. Returns the cleared labels. */
