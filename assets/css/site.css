@@ -195,8 +195,8 @@ h1 em, h2 em, h3 em, .h2 em { font-family: var(--serif); font-style: italic; fon
 .nav__list { display: flex; list-style: none; gap: 4px; }
 .nav__item { position: relative; }
 .nav__item.has-mega { position: static; }
-.nav__link { display: inline-flex; align-items: center; gap: 4px; white-space: nowrap; height: 44px; padding: 0 14px; border: 0; background: none; border-radius: 999px; color: var(--ink); font-weight: 600; font-size: .95rem; transition: background-color .2s, color .2s; }
-.nav__link:hover, .nav__item.is-open > .nav__link { background: var(--surface-2); }
+.nav__link { display: inline-flex; align-items: center; gap: 4px; white-space: nowrap; text-decoration: none; height: 44px; padding: 0 14px; border: 0; background: none; border-radius: 999px; color: var(--ink); font-weight: 600; font-size: .95rem; transition: background-color .2s, color .2s; }
+.nav__link:hover, .nav__item.is-open > .nav__link { background: var(--surface-2); color: var(--ink); }
 .nav__chev { width: 16px; height: 16px; transition: transform .3s var(--ease); opacity: .6; }
 .nav__item.is-open .nav__chev { transform: rotate(180deg); }
 
